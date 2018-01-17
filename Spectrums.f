@@ -10,7 +10,6 @@
       character*400 out_spec
       character*100 CLARG !command line argument
       
-      
       logical exist_flag_work, result
       
       integer*4 N, Na, Nline, i, j, k, alpha, beta, nl, il, ia, ja

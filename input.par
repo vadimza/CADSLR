@@ -1,5 +1,5 @@
-C:\YandexDisk\Fortran_Projects\Narrow_resonances_2D\	!	WORKING DIRECTORY
-C:\YandexDisk\Fortran_Projects\Narrow_resonances_2D\test\ ! TAB DIRECTORY
+C:\git_repositories\CADSLR\	!	WORKING DIRECTORY
+C:\git_repositories\CADSLR\ ! TAB DIRECTORY
 38.115				!	SHORTER SEMIAXIS OR RADIUS [NM]	!	IF ASPECT RATIO = 1, THEN IT IS RADIUS OF SPHERES, VALID FOR ALL CHAIN TYPES
 1.				!	FILLING FACTOR				
 900				!	NUMBER OF PARTICLES		!	ONLY FOR CHAIN TYPE = 1;2;3;4;5;6

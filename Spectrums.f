@@ -8,6 +8,8 @@
      $ name_omega, core_name, theta_name, phi_name
      
       character*400 out_spec
+      character*100 CLARG !command line argument
+      
       
       logical exist_flag_work, result
       
@@ -49,29 +51,109 @@ c------------------ Reading parameters from 'input.par' file -------------------
 c  
       CALL CPU_TIME (time_begin)
       
-      open(unit=70,file='input.par',status='old') 
- 
-      read(70,*) dir_work
-      read(70,*) dir_tab
-      read(70,*) b
-      read(70,*) fill
-      read(70,*) N
-      read(70,*) dist
-      read(70,*) height 
-      read(70,*) aspect
-      read(70,*) nshape
-      read(70,*) naxis
-      read(70,*) omega_min, omega_max, nw 
-      read(70,*) theta_pol, phi_pol 
-      read(70,*) theta_prop, phi_prop
-      read(70,*) excitation
-      read(70,*) mat_core
-      read(70,*) mat_shell
-      read(70,*) mat_sub
-      read(70,*) eps_ext 
-      read(70,*) substrate 
+      !open(unit=70,file='input.par',status='old') 
+      !read(70,*) dir_work
+      !read(70,*) dir_tab
+      !read(70,*) b
+      !read(70,*) fill
+      !read(70,*) N
+      !read(70,*) dist
+      !read(70,*) height 
+      !read(70,*) aspect
+      !read(70,*) nshape
+      !read(70,*) naxis
+      !read(70,*) omega_min, omega_max, nw 
+      !read(70,*) theta_pol, phi_pol 
+      !read(70,*) theta_prop, phi_prop
+      !read(70,*) excitation
+      !read(70,*) mat_core
+      !read(70,*) mat_shell
+      !read(70,*) mat_sub
+      !read(70,*) eps_ext 
+      !read(70,*) substrate 
+      !close(unit=70)
+
       
-      close(unit=70)
+      
+      
+      !++++++++++++++++++++++++++++++++
+      !take parameters from command line
+      !copy of input file
+      !__________________
+      !C:\git_repositories\CADSLR\	!	WORKING DIRECTORY
+      !C:\git_repositories\CADSLR\    ! TAB DIRECTORY
+      !38.115				!	SHORTER SEMIAXIS OR RADIUS [NM]	!	IF ASPECT RATIO = 1, THEN IT IS RADIUS OF SPHERES, VALID FOR ALL CHAIN TYPES
+      !1.				    !	FILLING FACTOR				
+      !900				!	NUMBER OF PARTICLES		        !	ONLY FOR CHAIN TYPE = 1;2;3;4;5;6
+      !838				!	INTERPARTICLE DISTANCE		    !	ONLY FOR CHAIN TYPE = 1;2;3;4;5;6
+      !0				    !	HEIGHT				            ! 	DISTANCE BETWEEN CENTER OF PARTICLE AND SURFACE OF SUBSTRATE
+      !1.				    !	ASPECT RATIO			        !	0 < ASPECT RATIO <= 1; 1 - SPHERE
+      !1				    ! 	SPHEROID TYPE			        ! 	1 - PROLATE, 2 - OBLATE [ONLY IF ASPECT RATIO < 1]
+      !2				    !	AXIS OF SYMMETRY		        ! 	1 - X, 2 - Y, 3 - Z	[ONLY IF ASPECT RATIO < 1]
+      !.9,5.4,4501        ! 	OMEGA_1 [rad/fs], OMEGA_2 [rad/fs], NUMBER OF POINTS	
+      !90,90				! 	THETA, PHI [DEG] FOR POL(E)     ! 	ANGLE (POL^Z) & ANGLE (POL_PROJECTION^X)      {X [90;0], Y [90;90], Z [0;0]}
+      !0,0				! 	THETA, PHI [DEG] FOR PROP(K)	!	ANGLE (PROP^Z) & ANGLE (PROP_PROJECTION^X)    {X [90;0], Y [90;90], Z [0;0]}
+      !1				    !	EXCITATION TYPE			        !	0 - TIP / 1 - PLANE WAVE 
+      !2				    !	MATERIAL OF CORE		        !	1 - Ag / 2 - Au / 3 - TiN 800 / 4 - ZrN / 5 - AZO / 6 - GZO / 7 - ITO / 8 - CUSTOM
+      !2				    !	MATERIAL OF SHELL		        !	1 - Ag / 2 - Au / 3 - TiN 800 / 4 - ZrN / 5 - AZO / 6 - GZO / 7 - ITO / 8 - CUSTOM
+      !3				    !	MATERIAL OF SUBSTRATE		    !	1 - Ag / 2 - Au / 3 - TiN 800 / 4 - ZrN / 5 - AZO / 6 - GZO / 7 - ITO / 8 - CUSTOM
+      !2.25				!	EPSILON OF HOST MEDIUM		    !	1. - VACUUM / 1.78 - WATER
+      !0				    !	SUBSTRATE 			            !	0-OFF / 1-ON
+      !___________________
+      
+      !sample for commande line argument
+      !all parameters from input.txt one by one
+      !C:\...\dipole_app.exe C:\...\ C:\...\ 38.115 1. 900 838 0 1. 1 2 0.9 5.4 4501 90 90 0 0 1 2 2 3 2.25 0
+      
+      call getarg(1, CLARG)
+      read(clarg,*) dir_work
+      call getarg(2, CLARG)
+      read(clarg,*) dir_tab
+      call getarg(3, CLARG)
+      read(clarg,*) b
+      call getarg(4, CLARG)
+      read(clarg,*) fill
+      call getarg(5, CLARG)
+      read(clarg,*) N
+      call getarg(6, CLARG)
+      read(clarg,*) dist
+      call getarg(7, CLARG)
+      read(clarg,*) height 
+      call getarg(8, CLARG)
+      read(clarg,*) aspect
+      call getarg(9, CLARG)
+      read(clarg,*) nshape
+      call getarg(10, CLARG)
+      read(clarg,*) naxis
+      call getarg(11, CLARG)
+      read(clarg,*) omega_min
+      call getarg(12, CLARG)
+      read(clarg,*) omega_max
+      call getarg(13, CLARG)
+      read(clarg,*) nw
+      call getarg(14, CLARG)
+      read(clarg,*) theta_pol
+      call getarg(15, CLARG)
+      read(clarg,*) phi_pol
+      call getarg(16, CLARG)
+      read(clarg,*) theta_prop
+      call getarg(17, CLARG)
+      read(clarg,*) phi_prop
+      call getarg(18, CLARG)
+      read(clarg,*) excitation
+      call getarg(19, CLARG)
+      read(clarg,*) mat_core
+      call getarg(20, CLARG)
+      read(clarg,*) mat_shell
+      call getarg(21, CLARG)
+      read(clarg,*) mat_sub
+      call getarg(22, CLARG)
+      read(clarg,*) eps_ext
+      call getarg(23, CLARG)
+      read(clarg,*) substrate
+      
+      !_____________________________
+
 c
 c----------------------Creating output file-----------------------
 c            

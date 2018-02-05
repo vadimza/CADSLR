@@ -86,7 +86,7 @@
       do
         read(70, *, end=10) TMPSTR_FULL
 
-        if (TMPSTR_FULL(1:4) .eq. "#END" ) stop
+        if (TMPSTR_FULL(1:4) .eq. "#END" ) goto 10
 
         if (TMPSTR_FULL(2:8) .eq. "WORKING") read(70,*)         dir_work
         if (TMPSTR_FULL(2:4) .eq. "TAB") read(70,*)             dir_tab  
@@ -109,9 +109,7 @@
         if (TMPSTR_FULL(2:10) .eq. "SUBSTRATE") read(70,*)      substrate
       end do
       
-10    rewind(70)
-      
-      close(70)
+10    close(70)
 
 !c
 !c----------------------Creating output file-----------------------

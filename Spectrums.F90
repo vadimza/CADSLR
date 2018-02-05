@@ -3,12 +3,13 @@
       implicit none
       
       character*300 dir_work, name_lambda, name_GR, name_dip, dir_tab
-      character*100 N_name, b_name, dist_name, eps_name, pol_name, 
-     $ aspect_name, height_name, prop_name, particle_name, sub_name,
-     $ name_omega, core_name, theta_name, phi_name
+      character*100 N_name, b_name, dist_name, eps_name, pol_name 
+      character*100 aspect_name, height_name, prop_name, particle_name, sub_name
+      character*100 name_omega, core_name, theta_name, phi_name
      
       character*400 out_spec
       character*100 CLARG !command line argument
+      character*15 TMPSTR, TMPSTR_FULL !temporary string
       
       logical exist_flag_work, result
       
@@ -16,8 +17,8 @@
       integer*4 nshape, naxis, nw, iw, excitation
       integer*4 substrate, mat_core, mat_shell, mat_sub
       integer*4 lwork, liwork, info, istat
-      integer*4 i_N_name, i_b_name, i_dist_name, i_eps_name, 
-     $ i_aspect_name, i_height_name, i_omega_name, i_core_name
+      integer*4 i_N_name, i_b_name, i_dist_name, i_eps_name
+      integer*4 i_aspect_name, i_height_name, i_omega_name, i_core_name
       integer*4 i_dir_work, i_dir_tab
       
       real*8 aspect, b, dist, height, eps_ext, fill, a_eff
@@ -45,35 +46,13 @@
       complex*16,   allocatable, dimension(:)   :: work, zet
       complex*16,   allocatable, dimension(:,:) :: a, rhs, E
       complex*16,   allocatable, dimension(:,:,:) :: GR
-c 
-c------------------ Reading parameters from 'input.par' file ------------------------ 
-c  
+      
+      
+      
+!c 
+!c------------------ Reading parameters from 'input.par' file ------------------------ 
+!c  
       CALL CPU_TIME (time_begin)
-      
-      !open(unit=70,file='input.par',status='old') 
-      !read(70,*) dir_work
-      !read(70,*) dir_tab
-      !read(70,*) b
-      !read(70,*) fill
-      !read(70,*) N
-      !read(70,*) dist
-      !read(70,*) height 
-      !read(70,*) aspect
-      !read(70,*) nshape
-      !read(70,*) naxis
-      !read(70,*) omega_min, omega_max, nw 
-      !read(70,*) theta_pol, phi_pol 
-      !read(70,*) theta_prop, phi_prop
-      !read(70,*) excitation
-      !read(70,*) mat_core
-      !read(70,*) mat_shell
-      !read(70,*) mat_sub
-      !read(70,*) eps_ext 
-      !read(70,*) substrate 
-      !close(unit=70)
-
-      
-      
       
       !++++++++++++++++++++++++++++++++
       !take parameters from command line
@@ -104,58 +83,68 @@ c
       !all parameters from input.txt one by one
       !C:\...\dipole_app.exe C:\...\ C:\...\ 38.115 1. 900 838 0 1. 1 2 0.9 5.4 4501 90 90 0 0 1 2 2 3 2.25 0
       
-      call getarg(1, CLARG)
-      read(clarg,*) dir_work
-      call getarg(2, CLARG)
-      read(clarg,*) dir_tab
-      call getarg(3, CLARG)
-      read(clarg,*) b
-      call getarg(4, CLARG)
-      read(clarg,*) fill
-      call getarg(5, CLARG)
-      read(clarg,*) N
-      call getarg(6, CLARG)
-      read(clarg,*) dist
-      call getarg(7, CLARG)
-      read(clarg,*) height 
-      call getarg(8, CLARG)
-      read(clarg,*) aspect
-      call getarg(9, CLARG)
-      read(clarg,*) nshape
-      call getarg(10, CLARG)
-      read(clarg,*) naxis
-      call getarg(11, CLARG)
-      read(clarg,*) omega_min
-      call getarg(12, CLARG)
-      read(clarg,*) omega_max
-      call getarg(13, CLARG)
-      read(clarg,*) nw
-      call getarg(14, CLARG)
-      read(clarg,*) theta_pol
-      call getarg(15, CLARG)
-      read(clarg,*) phi_pol
-      call getarg(16, CLARG)
-      read(clarg,*) theta_prop
-      call getarg(17, CLARG)
-      read(clarg,*) phi_prop
-      call getarg(18, CLARG)
-      read(clarg,*) excitation
-      call getarg(19, CLARG)
-      read(clarg,*) mat_core
-      call getarg(20, CLARG)
-      read(clarg,*) mat_shell
-      call getarg(21, CLARG)
-      read(clarg,*) mat_sub
-      call getarg(22, CLARG)
-      read(clarg,*) eps_ext
-      call getarg(23, CLARG)
-      read(clarg,*) substrate
-      
-      !_____________________________
+      open(unit=70,file="inp.par",status='old')
 
-c
-c----------------------Creating output file-----------------------
-c            
+      do
+          read(70, *, end=10) TMPSTR_FULL
+
+        if (TMPSTR_FULL(1:4) .eq. "#END" ) stop
+
+        if (TMPSTR_FULL(2:8) .eq. "WORKING") read(70,*)         dir_work
+        if (TMPSTR_FULL(2:4) .eq. "TAB") read(70,*)             dir_tab  
+        if (TMPSTR_FULL(2:8) .eq. "SHORTER") read(70,*)         b
+        if (TMPSTR_FULL(2:8) .eq. "FILLING") read(70,*)         fill
+        if (TMPSTR_FULL(2:7) .eq. "NUMBER") read(70,*)          N
+        if (TMPSTR_FULL(2:14) .eq. "INTERPARTICLE") read(70,*)  dist
+        if (TMPSTR_FULL(2:7) .eq. "HEIGHT") read(70,*)          height
+        if (TMPSTR_FULL(2:7) .eq. "ASPECT") read(70,*)          aspect
+        if (TMPSTR_FULL(2:9) .eq. "SPHEROID") read(70,*)        nshape
+        if (TMPSTR_FULL(2:5) .eq. "AXIS") read(70,*)            naxis
+        if (TMPSTR_FULL(2:8) .eq. "OMEGA_1") read(70,*)         omega_min,  omega_max,  nw
+        if (TMPSTR_FULL(2:7) .eq. "POL(E)") read(70,*)          theta_pol,  phi_pol
+        if (TMPSTR_FULL(2:8) .eq. "PROP(K)") read(70,*)         theta_prop, phi_prop
+        if (TMPSTR_FULL(2:11) .eq. "EXCITATION") read(70,*)     excitation
+        if (TMPSTR_FULL(2:6) .eq. "CORE") read(70,*)            mat_core
+        if (TMPSTR_FULL(2:7) .eq. "SHELL") read(70,*)           mat_shell
+        if (TMPSTR_FULL(2:9) .eq. "MATERIAL") read(70,*)        mat_sub
+        if (TMPSTR_FULL(2:8) .eq. "EPSILON") read(70,*)         eps_ext
+        if (TMPSTR_FULL(2:10) .eq. "SUBSTRATE") read(70,*)      substrate
+      end do
+      
+10    rewind(70)
+       
+
+
+
+        
+      !dir_work = "C:\git_repositories\CADSLR\"
+      !dir_tab = "C:\git_repositories\CADSLR\"
+      !b = 38.115
+      !fill = 1.0
+      !N = 990
+      !dist = 838
+      !height  = 0
+      !aspect = 1.0
+      !nshape = 1.0
+      !naxis = 2.0
+      !omega_min = 0.9
+      !omega_max = 5.4
+      !nw  = 4501
+      !theta_pol = 90
+      !phi_pol  = 90
+      !theta_prop = 0
+      !phi_prop = 0
+      !excitation = 1
+      !mat_core = 2
+      !mat_shell = 2
+      !mat_sub = 3
+      !eps_ext  = 2.25
+      !substrate  = 0 
+
+
+!c
+!c----------------------Creating output file-----------------------
+!c            
       write (N_name, '(I4)') N 
       N_name = trim(adjustl(N_name))
       write (b_name, '(I4)') int(b) 
@@ -213,68 +202,53 @@ c
       i_core_name = len_trim(core_name)
 
       IF (aspect .ne. 1.) THEN
-          write(out_spec, 102) dir_work, core_name, particle_name, 
-     $    aspect_name, N_name, b_name, dist_name, pol_name, 
-     $    prop_name, eps_name, sub_name
- 102      format(a<i_dir_work>,a<i_core_name>,a<2>,
-     $    '0',a<i_aspect_name>,
-     $    '_N=', a<i_N_name>, '_b=', a<i_b_name>,
-     $    '_h=',a<i_dist_name>,
-     $    '_pol=',a<5>,'_prop=',a<1>,
-     $    '_eps=',a<i_eps_name>,'_',a<4>,'.dat')
+          write(out_spec, 102) dir_work, core_name, particle_name, aspect_name, N_name, b_name, dist_name, pol_name, prop_name, eps_name, sub_name
+ 102      format(a<i_dir_work>, a<i_core_name>, a<2>, '0', a<i_aspect_name>, '_N=', a<i_N_name>, '_b=', a<i_b_name>, '_h=',a<i_dist_name>, '_pol=',a<5>,'_prop=', a<1>,'_eps=', a<i_eps_name>, '_', a<4>,'.dat')
           ELSE 
-              write(out_spec, 103) dir_work, core_name, particle_name, 
-     $        N_name, b_name, dist_name, pol_name, 
-     $        prop_name, eps_name, sub_name
- 103          format(a<i_dir_work>,'2D_',a<i_core_name>,'_',a<2>,
-     $        '_N=', a<i_N_name>, '_b=', a<i_b_name>,
-     $        '_h=',a<i_dist_name>,
-     $        '_pol=',a<5>,'_prop=',a<1>,
-     $        '_eps=',a<i_eps_name>,'_',a<4>,'.dat')
+              write(out_spec, 103) dir_work, core_name, particle_name, N_name, b_name, dist_name, pol_name, prop_name, eps_name, sub_name
+ 103          format(a<i_dir_work>,'2D_', a<i_core_name>, '_',a<2>, '_N=', a<i_N_name>, '_b=', a<i_b_name>, '_h=',a<i_dist_name>, '_pol=',a<5>,'_prop=', a<1>, '_eps=', a<i_eps_name>, '_', a<4>, '.dat')
       END IF
          
       i_dir_work = len_trim(dir_work)
       i_dir_tab  = len_trim(dir_tab)
-c 
-c--------- Mathematical constants -------------------------- 
-c 
+!c 
+!c--------- Mathematical constants -------------------------- 
+!c 
       cz = (0.0d0,0.0d0) 
       cu = (0.0d0,1.0d0) 
       rz = 0.0d0 
       ru = 1.0d0 
       pi = 4.0d0*datan(ru) 
       twopi = 2.0d0*pi
-c
-c-----------Calculating a_eff-----------------------
-c
+!c
+!c-----------Calculating a_eff-----------------------
+!c
       if (aspect .ne. 1) then
           if (nshape .eq. 1) a_eff = b / aspect ** (1./3.)
           if (nshape .eq. 2) a_eff = b / aspect ** (2./3.)
       end if
       if (aspect .eq. 1) a_eff = b     
-c
-c--------------------Converting degrees to radians---------------------
-c
+!c
+!c--------------------Converting degrees to radians---------------------
+!c
       theta_pol = theta_pol * pi / 180.
       phi_pol = phi_pol * pi / 180.
       theta_prop = theta_prop * pi / 180.
       phi_prop = phi_prop * pi / 180.
-c      
-c--------------------Checking for input errors-------------------------      
-c
+!c      
+!c--------------------Checking for input errors-------------------------      
+!c
       if (nshape .ne. 1 .and. nshape .ne. 2) goto 202
       if (naxis .ne. 1 .and. naxis .ne. 2 .and. naxis .ne. 3) goto 203
-      if (sin(theta_pol)*cos(phi_pol) * sin(theta_prop)*cos(phi_prop) +
-     $    sin(theta_pol)*sin(phi_pol) * sin(theta_prop)*sin(phi_prop) +
-     $    cos(theta_pol)*cos(theta_prop) .gt. 1.E-10) goto 205
+      if (sin(theta_pol)*cos(phi_pol) * sin(theta_prop)*cos(phi_prop) + sin(theta_pol)*sin(phi_pol) * sin(theta_prop)*sin(phi_prop) + cos(theta_pol)*cos(theta_prop) .gt. 1.E-10) goto 205
       
       inquire(DIRECTORY=dir_work, EXIST=exist_flag_work)
       if(.not. exist_flag_work) goto 206
       
       if (substrate .ne. 0 .and. substrate .ne. 1) goto 207      
-c      
-c-----------------------Allocating workspace-----------------------------      
-c      
+!c      
+!c-----------------------Allocating workspace-----------------------------      
+!c      
        allocate(x(1:N),y(1:N),z(1:N)) 
        Na = 3*N
        Nline = int(sqrt(real(N)))
@@ -292,9 +266,9 @@ c
        pol(3)  = dcos(theta_pol)
 
       open(unit=70,file=out_spec, status='unknown')
-c 
-c------------------- Writing coordinates for single chain--------------- 
-c   
+!c 
+!c------------------- Writing coordinates for single chain--------------- 
+!c   
       write (*,*) '--------------------------------------------------'
       write (*,*) '2D lattice, NxN=', Nline,'x',Nline
       write (*,*) 'b=', sngl(b)
@@ -308,12 +282,12 @@ c
               z(i + Nline*(j-1)) = height
           end do
       end do
-c   
-c----------------------------------------------------------------------- 
-c---------------------START LOOP OVER OMEGA-----------------------------       
+!c   
+!c----------------------------------------------------------------------- 
+!c---------------------START LOOP OVER OMEGA-----------------------------       
       do 15 iw = 1,nw
-c----------------------------------------------------------------------- 
-c-----------------------------------------------------------------------       
+!c----------------------------------------------------------------------- 
+!c-----------------------------------------------------------------------       
  
           dw = (omega_max - omega_min) / dfloat(nw-1)
           wi =  omega_min + dw * dfloat(iw-1)
@@ -336,18 +310,15 @@ c-----------------------------------------------------------------------
           call permittivity (mat_core, li,eps_ext,eps_core)
       
           if (fill .ne. ru) then
-              eps_eff = eps_shell * 
-     $        (eps_core + 2.*eps_shell + 2.*fill*(eps_core-eps_shell))/
-     $        (eps_core + 2.*eps_shell -    fill*(eps_core-eps_shell))
+              eps_eff = eps_shell * (eps_core + 2.*eps_shell + 2.*fill*(eps_core-eps_shell))/ (eps_core + 2.*eps_shell - fill*(eps_core-eps_shell))
           else 
               eps_eff = eps_core
           end if
 
-          call susceptibility
-     $         (eps_eff,N,li,nshape,naxis,b,aspect,eps_ext,zet)
-c
-c----------- Creating matrix A --------------------------------- 
-c  
+          call susceptibility(eps_eff,N,li,nshape,naxis,b,aspect,eps_ext,zet)
+!c
+!c----------- Creating matrix A --------------------------------- 
+!c  
           a = cz 
           GR = cz
        
@@ -366,8 +337,7 @@ c
                   rij_2 = xij**2 + yij**2 + zij**2 
                   rij = dsqrt(rij_2) 
             
-                  CALL GF_substrate_sameheight(height,rij,dist,wv_1,
-     $                    eps_sub, GRxx, GRyy, GRzz, GRxz, GRzx, istat)
+                  CALL GF_substrate_sameheight(height,rij,dist,wv_1,eps_sub, GRxx, GRyy, GRzz, GRxz, GRzx, istat)
             
                   GR(i,j,1) = GRxx * wv_3
                   GR(i,j,2) = GRyy * wv_3
@@ -422,16 +392,11 @@ c
 
               IF (substrate .eq. 1 ) THEN
       
-                  if (alpha .eq. 1 .and. beta .eq. 1)
-     $                              a(ja,ia) = a(ja,ia) + GR(i,j,1)
-                  if (alpha .eq. 2 .and. beta .eq. 2)
-     $                              a(ja,ia) = a(ja,ia) + GR(i,j,2)
-                  if (alpha .eq. 3 .and. beta .eq. 3)
-     $                              a(ja,ia) = a(ja,ia) + GR(i,j,3)
-                  if (alpha .eq. 1 .and. beta .eq. 3)
-     $                              a(ja,ia) = a(ja,ia) + GR(i,j,4)
-                  if (alpha .eq. 3 .and. beta .eq. 1)
-     $                              a(ja,ia) = a(ja,ia) + GR(i,j,5)
+                  if (alpha .eq. 1 .and. beta .eq. 1)  a(ja,ia) = a(ja,ia) + GR(i,j,1)
+                  if (alpha .eq. 2 .and. beta .eq. 2)  a(ja,ia) = a(ja,ia) + GR(i,j,2)
+                  if (alpha .eq. 3 .and. beta .eq. 3)  a(ja,ia) = a(ja,ia) + GR(i,j,3)
+                  if (alpha .eq. 1 .and. beta .eq. 3)  a(ja,ia) = a(ja,ia) + GR(i,j,4)
+                  if (alpha .eq. 3 .and. beta .eq. 1)  a(ja,ia) = a(ja,ia) + GR(i,j,5)
           
               END IF
                  
@@ -491,9 +456,9 @@ c
 !     $  sngl(dreal(sum_y)), sngl(dimag(zet(1)*b**3 - sum_y))
 !      
 !      goto 15
-c 
-c-------- Costructing right-hand side  -------------------------------- 
-c  
+!c 
+!c-------- Costructing right-hand side  -------------------------------- 
+!c  
       E = cz
       
       IF (excitation .eq. 1) THEN           !Plane wave
@@ -508,11 +473,9 @@ c
             
       if (substrate .eq. 1) then
       
-      ref = (cdsqrt(eps_sub) - sqrt(eps_ext)) /
-     $  (sqrt(eps_ext) + cdsqrt(eps_sub))
+      ref = (cdsqrt(eps_sub) - sqrt(eps_ext)) / (sqrt(eps_ext) + cdsqrt(eps_sub))
       
-      arg_ref = prop(1) * x(i) + prop(2) * y(i) + 
-     $ prop(3) * (z(i) - height)
+      arg_ref = prop(1) * x(i) + prop(2) * y(i) + prop(3) * (z(i) - height)
       
       E(3*i-2,1) = E(3*i-2,1) + ref*pol(1) * cdexp(cu * wv_1 * arg_ref)
       E(3*i-1,1) = E(3*i-1,1) + ref*pol(2) * cdexp(cu * wv_1 * arg_ref)
@@ -530,8 +493,7 @@ c
       
       if (substrate .eq. 1) then
       
-      ref = (cdsqrt(eps_sub) - sqrt(eps_ext)) /
-     $  (sqrt(eps_ext) + cdsqrt(eps_sub))
+      ref = (cdsqrt(eps_sub) - sqrt(eps_ext)) / (sqrt(eps_ext) + cdsqrt(eps_sub))
      
       E(1,1) = E(1,1) + ref*pol(1)
       E(2,1) = E(2,1) + ref*pol(2)
@@ -542,9 +504,9 @@ c
       END IF
             
       rhs = E      
-c 
-c--------- Solving equations --------------------------------------- 
-c  
+!c 
+!c--------- Solving equations --------------------------------------- 
+!c  
       liwork = Na 
       allocate(iwork(liwork)) 
  
@@ -564,9 +526,9 @@ c
        
       deallocate(work) 
       deallocate(iwork)
-c 
-c---------- Saving out dipole moments------------------------------- 
-c  
+!c 
+!c---------- Saving out dipole moments------------------------------- 
+!c  
 !      write(name_dip, 122) dir_work, name_omega 
 ! 122  format(a<i_dir_work>,'\','dip_', a<i_omega_name>, 'nm.dat') 
 !      
@@ -592,9 +554,9 @@ c
 !      close(20)
 !
 !      write(70,*)  sngl(li), sngl(d2a)!, 10d0*dlog10(d2a)
-c 
-c---------- Calculating spectrums------------------------------- 
-c  
+!c 
+!c---------- Calculating spectrums------------------------------- 
+!c  
       sum_e = rz
       sum_a = rz
       sum_s = rz
@@ -607,28 +569,23 @@ c
       
       end do
       
-      if (aspect .eq. 1) delta = -dimag((eps_eff + 2.*ru) 
-     $ / (eps_ext * b**3 * (eps_eff - ru)))
+      if (aspect .eq. 1) delta = -dimag((eps_eff + 2.*ru) / (eps_ext * b**3 * (eps_eff - ru)))
      
-      if (nshape .eq. 1 .and. aspect .ne. ru) 
-     $ delta = -dimag(aspect * (eps_eff + 2.*ru) 
-     $ / (eps_ext * b**3 * (eps_eff - ru)))
+      if (nshape .eq. 1 .and. aspect .ne. ru) delta = -dimag(aspect * (eps_eff + 2.*ru) / (eps_ext * b**3 * (eps_eff - ru)))
      
-      if (nshape .eq. 2 .and. aspect .ne. ru)
-     $ delta = -dimag(aspect**2 * (eps_eff + 2.*ru) 
-     $ / (eps_ext * b**3 * (eps_eff - ru)))
+      if (nshape .eq. 2 .and. aspect .ne. ru) delta = -dimag(aspect**2 * (eps_eff + 2.*ru) / (eps_ext * b**3 * (eps_eff - ru)))
       
       qe = 4.*wv_1*sum_e/(float(N)*a_eff**2)
       qa = 4.*wv_1*delta*sum_a/(float(N)*a_eff**2)
       qs = qe - qa
       
       write(70,*)  sngl(li), sngl(wi), sngl(qe), sngl(qa), sngl(qs)
-c---------------------------------------------------------------------                  
-c---------------------------------------------------------------------      
+!c---------------------------------------------------------------------                  
+!c---------------------------------------------------------------------      
  15   end do 
-c---------------------END LOOP OVER OMEGA-----------------------------  
-c--------------------------------------------------------------------- 
-c       
+!c---------------------END LOOP OVER OMEGA-----------------------------  
+!c--------------------------------------------------------------------- 
+!c       
       deallocate(a)
       deallocate(rhs)
       close(70)
@@ -636,9 +593,9 @@ c
  
       CALL CPU_TIME (time_end)
       write(*,*) 'estimated_time=', time_end-time_begin, 'sec'
-c-----------------------------------------------------------------------      
+!c-----------------------------------------------------------------------      
  500  stop 
-c-------------------------ERRORS----------------------------------------  
+!c-------------------------ERRORS----------------------------------------  
   
  202  continue
       write(*,*) 'Invalid nshape; exiting'

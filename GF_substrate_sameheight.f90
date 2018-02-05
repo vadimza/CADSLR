@@ -1,11 +1,10 @@
-      subroutine gf_substrate_sameheight(height, rho, dist, xk, eps_sub,
-     $                        GRxx, GRyy, GRzz, GRxz, GRzx, istat) 
+      subroutine gf_substrate_sameheight(height, rho, dist, xk, eps_sub, GRxx, GRyy, GRzz, GRxz, GRzx, istat) 
                          ! Numerical calculation of the half-space
                          ! electromagnetic Green's tensor
                          ! by discretization of the Sommerfeld integrals
                          !
                          ! This program uses intrinsic Bessel functions
-c--------------------------------------------------------------------------
+!c--------------------------------------------------------------------------
       implicit none         
 
       complex*16, intent(out):: GRxx, GRyy, GRzz, GRxz, GRzx
@@ -25,7 +24,7 @@ c--------------------------------------------------------------------------
       real*8 rpe, r_p
       real*8 zh_p, zh_p_2
       real*8 RJ01p, RJ0p, RJ1p
-c$$$      real*8 DBESJ0, DBESJ1
+!c$$$      real*8 DBESJ0, DBESJ1
 
       complex*16 cu, cz, eps, eps1, kzeps
       complex*16 cpe, R, Rpr
@@ -42,9 +41,9 @@ c$$$      real*8 DBESJ0, DBESJ1
       complex*16 Gyy1a,Gyy1b,Gyy2a1,Gyy2a2,Gyy2ah,Gyy2bh,Gyy2b1,Gyy2b2
       complex*16 Gzz1,Gzz2b1,Gzz2b2,Gzz2
       complex*16 Gxz1,Gxz2a1,Gxz2a2,Gxz2
-c
-c------ Mathematical constants ------------------------------------
-c
+!c
+!c------ Mathematical constants ------------------------------------
+!c
       rz    = 0.0d0
       ru    = 1.0d0
       cz    = (0.0d0,0.0d0)
@@ -90,12 +89,11 @@ c
 !         return
 !      end if
 
-c------------------------------------------------------- 
-c--------------DIELECTRIC SUBSTRATE--------------------- 
-c------------------------------------------------------- 
+!c------------------------------------------------------- 
+!c--------------DIELECTRIC SUBSTRATE--------------------- 
+!c------------------------------------------------------- 
  
-!      IF (eps_sub .eq. (2.25,0.01)) THEN 
-!      
+     
       if (rho .ge. rz .and. rho .le. dist/0.6d0) then !40
         N1 = 1.0d2
         N2 = 1.0d4
@@ -137,12 +135,11 @@ c-------------------------------------------------------
         N3 = 1.0d6
         y_max = 2.5d2
       end if
-!      
-!      END IF
+
       
-c------------------------------------------------------- 
-c------------------METAL SUBSTRATE---------------------- 
-c------------------------------------------------------- 
+!c------------------------------------------------------- 
+!c------------------METAL SUBSTRATE---------------------- 
+!c------------------------------------------------------- 
 
       if (rho .ge. rz .and. rho .le. dist/0.6d0) then !40
         N1 = 1.0d3
@@ -185,9 +182,9 @@ c-------------------------------------------------------
         N3 = 1.0d7
         y_max = 2.5d2
       end if
-c
-c------- Input-dependent constants --------------------------
-c
+!c
+!c------- Input-dependent constants --------------------------
+!c
       z_p = two*height
       r_p = dsqrt(rho*rho + z_p*z_p)
       zh_p   = z_p/r_p
@@ -203,16 +200,16 @@ c
       Zhat_p = xk*z_p       ! Used for G^R
       Rhat   = xk*rho     
 
-C$$$  J0Hat = DBESJ0(Rhat)
-C$$$  J1Hat = DBESJ1(Rhat)/Rhat
+!C$$$  J0Hat = DBESJ0(Rhat)
+!C$$$  J1Hat = DBESJ1(Rhat)/Rhat
       CALL BJ01(Rhat,J0Hat,J1Hat)
-c
-c-------- End input-dependent constants block ------------------------
-c
+!c
+!c-------- End input-dependent constants block ------------------------
+!c
 
-c
-c-------- Integrals over the finite interval (0,1) ---------
-c                 dy = dy1 = 1/N1   
+!c
+!c-------- Integrals over the finite interval (0,1) ---------
+!c                 dy = dy1 = 1/N1   
 
       s2xx = -J1Hat 
       s2yy =  rz    
@@ -244,8 +241,8 @@ c                 dy = dy1 = 1/N1
          Rpr   = (kzeps-eps*y)/(kzeps+eps*y)
          cpe   = cdexp(cu*y*Zhat_p)
          w     = Rhat*dsqrt(y3)
-c$$$        J0 = DBESJ0(w)
-c$$$        J1 = DBESJ1(w)/w
+!c$$$        J0 = DBESJ0(w)
+!c$$$        J1 = DBESJ1(w)/w
             CALL BJ01(W,J0,J1)
          J01p  = (J0-J1)*cpe
          J1p   = J1*cpe
@@ -274,8 +271,8 @@ c$$$        J1 = DBESJ1(w)/w
          Rpr   = (kzeps-eps*y)/(kzeps+eps*y)
          cpe   = cdexp(cu*y*Zhat_p)
          w     = Rhat*dsqrt(y3)
-c$$         J0 = DBESJ0(w)
-c$$         J1 = DBESJ1(w)/w
+!c$$         J0 = DBESJ0(w)
+!c$$         J1 = DBESJ1(w)/w
             CALL BJ01(W,J0,J1)
          J01p  = (J0-J1)*cpe
          J1p   = J1*cpe
@@ -305,12 +302,12 @@ c$$         J1 = DBESJ1(w)/w
 
       Gxx1b = dy1*(two*sum2xx_b + four*sum1xx_b + s1xx)/three
       Gyy1b = dy1*(two*sum2yy_b + four*sum1yy_b + s1yy)/three
-c
-c-------- Integrals over the infinite interval (0,Inf) ---------
-c-------- The integlas is broken in two parts ------------------
-c-------- a) First, compute over the interval (0,div)
-c                 dy = dy2 = div/N2
-c
+!c
+!c-------- Integrals over the infinite interval (0,Inf) ---------
+!c-------- The integlas is broken in two parts ------------------
+!c-------- a) First, compute over the interval (0,div)
+!c                 dy = dy2 = div/N2
+!c
       s2xx = -J1Hat
       s2yy =  rz
       s2xz =  rz
@@ -322,7 +319,7 @@ c
       R     = (y-kzeps)/(y+kzeps)
       Rpr   = (kzeps-eps*y)/(kzeps+eps*y)
       w     = Rhat*dsqrt(ru+y2)
-c$$$     J1 = DBESJ1(w)/w
+!c$$$     J1 = DBESJ1(w)/w
          CALL BJ01(W,J0,J1)
       s1xx  = s2xx + rpe*J1*R
       s1yy  = s2yy + y2*rpe*J1*Rpr
@@ -344,8 +341,8 @@ c$$$     J1 = DBESJ1(w)/w
          R      = (y-kzeps)/(y+kzeps)
          Rpr    = (kzeps-eps*y)/(kzeps+eps*y)
          w      = Rhat*dsqrt(y3)
-c$$$         J0 = DBESJ0(w)
-c$$$         J1 = DBESJ1(w)/w
+!c$$$         J0 = DBESJ0(w)
+!c$$$         J1 = DBESJ1(w)/w
              CALL BJ01(W,J0,J1)
          RJ01p  = (J0-J1)*rpe
          RJ1p   = J1*rpe
@@ -374,8 +371,8 @@ c$$$         J1 = DBESJ1(w)/w
          R      = (y-kzeps)/(y+kzeps)
          Rpr    = (kzeps-eps*y)/(kzeps+eps*y)
          w      = Rhat*dsqrt(y3)
-c$$$         J0 = DBESJ0(w)
-c$$$         J1 = DBESJ1(w)/w
+!c$$$         J0 = DBESJ0(w)
+!c$$$         J1 = DBESJ1(w)/w
              CALL BJ01(W,J0,J1)
          RJ01p  = (J0-J1)*rpe
          RJ1p   = J1*rpe
@@ -391,12 +388,12 @@ c$$$         J1 = DBESJ1(w)/w
       Gxx2a1 = dy2*(two*sum2xx_a + four*sum1xx_a + s1xx)/three
       Gyy2a1 = dy2*(two*sum2yy_a + four*sum1yy_a + s1yy)/three
       Gxz2a1 = dy2*(two*sum2xz   + four*sum1xz   + s1xz)/three
-c
-c-------- Integrals over the infinite interval (0,Inf) ---------
-c-------- The integlas is broken in two parts ------------------
-c-------- b) Second part, compute over the interval (div,y_max)
-c                 dy = dy3 = (y_max-div)/N3
-c
+!c
+!c-------- Integrals over the infinite interval (0,Inf) ---------
+!c-------- The integlas is broken in two parts ------------------
+!c-------- b) Second part, compute over the interval (div,y_max)
+!c                 dy = dy3 = (y_max-div)/N3
+!c
       y     = div
       y2    = y*y
       rpe   = dexp(-y*Zhat_p)
@@ -404,7 +401,7 @@ c
       R     = (y-kzeps)/(y+kzeps)
       Rpr   = (kzeps-eps*y)/(kzeps+eps*y)
       w     = Rhat*dsqrt(ru+y2)
-c$$$     J1 = DBESJ1(w)/w
+!c$$$     J1 = DBESJ1(w)/w
          CALL BJ01(W,J0,J1)
       s2xx  = rpe*J1*R
       s2yy  = y2*rpe*J1*Rpr
@@ -417,7 +414,7 @@ c$$$     J1 = DBESJ1(w)/w
       R     = (y-kzeps)/(y+kzeps)
       Rpr   = (kzeps-eps*y)/(kzeps+eps*y)
       w     = Rhat*dsqrt(ru+y2)
-c$$$     J1 = DBESJ1(w)/w
+!c$$$     J1 = DBESJ1(w)/w
          CALL BJ01(W,J0,J1)
       s1xx  = s2xx + rpe*J1*R
       s1yy  = s2yy + y2*rpe*J1*Rpr
@@ -439,8 +436,8 @@ c$$$     J1 = DBESJ1(w)/w
          R      = (y-kzeps)/(y+kzeps)
          Rpr    = (kzeps-eps*y)/(kzeps+eps*y)
          w      = Rhat*dsqrt(y3)
-c$$$         J0 = DBESJ0(w)
-c$$$         J1 = DBESJ1(w)/w
+!c$$$         J0 = DBESJ0(w)
+!c$$$         J1 = DBESJ1(w)/w
              CALL BJ01(W,J0,J1)
          RJ01p  = (J0-J1)*rpe
          RJ1p   = J1*rpe
@@ -469,8 +466,8 @@ c$$$         J1 = DBESJ1(w)/w
          R      = (y-kzeps)/(y+kzeps)
          Rpr    = (kzeps-eps*y)/(kzeps+eps*y)
          w      = Rhat*dsqrt(y3)
-c$$$         J0 = DBESJ0(w)
-c$$$         J1 = DBESJ1(w)/w
+!c$$$         J0 = DBESJ0(w)
+!c$$$         J1 = DBESJ1(w)/w
              CALL BJ01(W,J0,J1)
          RJ01p  = (J0-J1)*rpe
          RJ1p   = J1*rpe
@@ -501,8 +498,8 @@ c$$$         J1 = DBESJ1(w)/w
       Rpr   = (kzeps-eps*y)/(kzeps+eps*y)
       R     = (y-kzeps)/(y+kzeps)
       w     = Rhat*dsqrt(ru+y2)
-c$$$     J0 = DBESJ0(w)
-c$$$     J1 = DBESJ1(w)/w
+!c$$$     J0 = DBESJ0(w)
+!c$$$     J1 = DBESJ1(w)/w
          CALL BJ01(W,J0,J1)
       s1xx  = s2xx + y2*rpe*Rpr*(J0-J1)
       s1yy  = s2yy + rpe*R*(J0-J1)
@@ -519,8 +516,8 @@ c$$$     J1 = DBESJ1(w)/w
       Rpr   = (kzeps-eps*y)/(kzeps+eps*y)
       R     = (y-kzeps)/(y+kzeps)
       w     = Rhat*dsqrt(ru+y2)
-c$$$     J0 = DBESJ0(w)
-c$$$     J1 = DBESJ1(w)/w
+!c$$$     J0 = DBESJ0(w)
+!c$$$     J1 = DBESJ1(w)/w
          CALL BJ01(W,J0,J1)
       s2xx  = y2*rpe*Rpr*(J0-J1)
       s2yy  = rpe*R*(J0-J1)
@@ -533,8 +530,8 @@ c$$$     J1 = DBESJ1(w)/w
       Rpr   = (kzeps-eps*y)/(kzeps+eps*y)
       R     = (y-kzeps)/(y+kzeps)
       w     = Rhat*dsqrt(ru+y2)
-c$$$     J0 = DBESJ0(w)
-c$$$     J1 = DBESJ1(w)/w
+!c$$$     J0 = DBESJ0(w)
+!c$$$     J1 = DBESJ1(w)/w
          CALL BJ01(W,J0,J1)
       s1xx  = s2xx + y2*rpe*Rpr*(J0-J1)
       s1yy  = s2yy + rpe*R*(J0-J1)
@@ -548,7 +545,7 @@ c$$$     J1 = DBESJ1(w)/w
       Gyy2bh = Gyy2b1 + Gyy2b2
       Gzz2   = Gzz2b1 + Gzz2b2
 
-c     Dimensionless G^R/k**3
+!c     Dimensionless G^R/k**3
       GRxx = cu*(Gxx1a + Gxx1b) + Gxx2ah - Gxx2bh
       GRyy = cu*(Gyy1a + Gyy1b) + Gyy2bh - Gyy2ah
       GRzz = -cu*Gzz1 - Gzz2
@@ -556,22 +553,22 @@ c     Dimensionless G^R/k**3
       GRzx = -GRxz
 
       return
-      end
+      end SUBROUTINE
 
 
         SUBROUTINE BJ01(X,BJ0,BJ1)
-C       ============================================================
-C        Computes BJ0 = J0(x) and BJ1 = J1(x)/x
-C        WARNING: do not use this subroutine in other applications.
-C                 It will not return correct values for the case X=0.
-C                 Also, the variable BJ1 contains J1(x)/x, not
-C                 the Bessel function J1(x) itself
-C       ============================================================
-C
-C       See S.Zhang, J.Jin, Computation of Special Functions, 
-C                           Wiley, 1996, Sec.5.2. 
-C       This subroutine is a modification of the subroutine JY01B
-C       which is described in that section.
+!C       ============================================================
+!C        Computes BJ0 = J0(x) and BJ1 = J1(x)/x
+!C        WARNING: do not use this subroutine in other applications.
+!C                 It will not return correct values for the case X=0.
+!C                 Also, the variable BJ1 contains J1(x)/x, not
+!C                 the Bessel function J1(x) itself
+!C       ============================================================
+!C
+!C       See S.Zhang, J.Jin, Computation of Special Functions, 
+!C                           Wiley, 1996, Sec.5.2. 
+!C       This subroutine is a modification of the subroutine JY01B
+!C       which is described in that section.
         IMPLICIT NONE
 
         REAL*8 PI,X,T,T2,BJ0,BJ1,A0,P0,Q0,P1,Q1,TA0,TA1
@@ -583,32 +580,22 @@ C       which is described in that section.
         ELSE IF (X.LE.4.0D0) THEN
            T=X/4.0D0
            T2=T*T
-           BJ0=((((((-.5014415D-3*T2+.76771853D-2)*T2
-     &         -.0709253492D0)*T2+.4443584263D0)*T2
-     &         -1.7777560599D0)*T2+3.9999973021D0)
-     &         *T2-3.9999998721D0)*T2+1.0D0
-           BJ1=T*(((((((-.1289769D-3*T2+.22069155D-2)
-     &         *T2-.0236616773D0)*T2+.1777582922D0)*T2
-     &         -.8888839649D0)*T2+2.6666660544D0)*T2
-     &         -3.9999999710D0)*T2+1.9999999998D0)
+           BJ0=((((((-.5014415D-3*T2+.76771853D-2)*T2-.0709253492D0)*T2+.4443584263D0)*T2-1.7777560599D0)*T2+3.9999973021D0)*T2-3.9999998721D0)*T2+1.0D0
+           BJ1=T*(((((((-.1289769D-3*T2+.22069155D-2)*T2-.0236616773D0)*T2+.1777582922D0)*T2-.8888839649D0)*T2+2.6666660544D0)*T2-3.9999999710D0)*T2+1.9999999998D0)
         ELSE
            T=4.0D0/X
            T2=T*T
            A0=DSQRT(2.0D0/(PI*X))
-           P0=((((-.9285D-5*T2+.43506D-4)*T2-.122226D-3)*T2
-     &        +.434725D-3)*T2-.4394275D-2)*T2+.999999997D0
-           Q0=T*(((((.8099D-5*T2-.35614D-4)*T2+.85844D-4)*T2
-     &        -.218024D-3)*T2+.1144106D-2)*T2-.031249995D0)
+           P0=((((-.9285D-5*T2+.43506D-4)*T2-.122226D-3)*T2+.434725D-3)*T2-.4394275D-2)*T2+.999999997D0
+           Q0=T*(((((.8099D-5*T2-.35614D-4)*T2+.85844D-4)*T2-.218024D-3)*T2+.1144106D-2)*T2-.031249995D0)
            TA0=X-.25D0*PI
            BJ0=A0*(P0*DCOS(TA0)-Q0*DSIN(TA0))
-           P1=((((.10632D-4*T2-.50363D-4)*T2+.145575D-3)*T2
-     &        -.559487D-3)*T2+.7323931D-2)*T2+1.000000004D0
-           Q1=T*(((((-.9173D-5*T2+.40658D-4)*T2-.99941D-4)*T2
-     &        +.266891D-3)*T2-.1601836D-2)*T2+.093749994D0)
+           P1=((((.10632D-4*T2-.50363D-4)*T2+.145575D-3)*T2-.559487D-3)*T2+.7323931D-2)*T2+1.000000004D0
+           Q1=T*(((((-.9173D-5*T2+.40658D-4)*T2-.99941D-4)*T2+.266891D-3)*T2-.1601836D-2)*T2+.093749994D0)
            TA1=X-.75D0*PI
            BJ1=A0*(P1*DCOS(TA1)-Q1*DSIN(TA1))
         ENDIF
         BJ1 = BJ1/X
 
         RETURN
-        END
+        END SUBROUTINE

@@ -1,7 +1,6 @@
-      SUBROUTINE SUSCEPTIBILITY (eps, 
-     $           N, lambda, nshape, naxis, b, aspect, eps_ext, zet) 
+subroutine SUSCEPTIBILITY (eps, N, lambda, nshape, naxis, b, aspect, eps_ext, zet) 
 
-      implicit none
+implicit none
       integer*4, intent(in) :: N, nshape, naxis 
       real*8,    intent(in) :: aspect, b, eps_ext, lambda
       complex*16,intent(in) :: eps
@@ -43,12 +42,10 @@
       D_axis = 3*(1+ecc_2)/(1-ecc_2)*L_axis/4 + 1
       D_ort = 0.5*aspect*(1.5*dlog((1+ecc_1)/(1-ecc_1))/ecc_1 - D_axis)
 
-      zet = 3 * aspect * (L_ort + ru / (eps - ru)) 
-     $ / b**3 - wv_2 / b * D_ort - 2 * cu * wv_3 / 3.
+      zet = 3 * aspect * (L_ort + ru / (eps - ru)) / b**3 - wv_2 / b * D_ort - 2 * cu * wv_3 / 3.
       
       do i=0,N-1
-      zet(naxis+3*i) = 3 * aspect * (L_axis + ru / (eps - ru))
-     $ / b**3 - wv_2 / (b / aspect) * D_axis - 2 * cu * wv_3 / 3.
+      zet(naxis+3*i) = 3 * aspect * (L_axis + ru / (eps - ru)) / b**3 - wv_2 / (b / aspect) * D_axis - 2 * cu * wv_3 / 3.
       end do
       
       END IF
@@ -65,13 +62,10 @@
       D_axis = 3*(1-2*ecc_2)*L_axis/4 + 1
       D_ort = 0.5*(3*ge*dasin(ecc_1) - D_axis)/aspect
   
-      zet = 3 * aspect**2 * (L_ort + ru / (eps - ru)) 
-     $ / b**3 - wv_2 / (b / aspect) * D_ort - 2*cu*wv_3/3.
+      zet = 3 * aspect**2 * (L_ort + ru / (eps - ru)) / b**3 - wv_2 / (b / aspect) * D_ort - 2*cu*wv_3/3.
 
       do i=0,N-1
-      zet(naxis+3*i) = 3 * aspect**2 * 
-     $ (L_axis + ru / (eps - ru)) / b**3 
-     $ - wv_2 / b * D_axis - 2 * cu * wv_3 / 3.
+      zet(naxis+3*i) = 3 * aspect**2 * (L_axis + ru / (eps - ru)) / b**3 - wv_2 / b * D_axis - 2 * cu * wv_3 / 3.
       end do
        
       END IF
@@ -79,28 +73,22 @@
       IF (aspect .eq. ru) THEN
       
       psi_mkr_0 = cdsin(m*wv_1*b)/(m*wv_1*b)-cdcos(m*wv_1*b)
-      psi_mkr_1 = cdcos(m*wv_1*b)/(m*wv_1*b) - 
-     $    cdsin(m*wv_1*b)/((m*wv_1*b)**2) + cdsin(m*wv_1*b)
+      psi_mkr_1 = cdcos(m*wv_1*b)/(m*wv_1*b) - cdsin(m*wv_1*b)/((m*wv_1*b)**2) + cdsin(m*wv_1*b)
      
       psi_kr_0 = dsin(wv_1*b)/(wv_1*b) - dcos(wv_1*b)
-      psi_kr_1 = dcos(wv_1*b)/(wv_1*b) - 
-     $           dsin(wv_1*b)/((wv_1*b)**2) + dsin(wv_1*b)
+      psi_kr_1 = dcos(wv_1*b)/(wv_1*b) - dsin(wv_1*b)/((wv_1*b)**2) + dsin(wv_1*b)
      
-      xi_kr_0 = psi_kr_0 - cu * (dcos(wv_1*b)/(wv_1*b) + 
-     $                           dsin(wv_1*b))
-      xi_kr_1 = psi_kr_1 + cu * (dsin(wv_1*b)/(wv_1*b) + 
-     $      dcos(wv_1*b)/((wv_1*b)**2) - dcos(wv_1*b))
+      xi_kr_0 = psi_kr_0 - cu * (dcos(wv_1*b)/(wv_1*b) + dsin(wv_1*b))
+      xi_kr_1 = psi_kr_1 + cu * (dsin(wv_1*b)/(wv_1*b) + dcos(wv_1*b)/((wv_1*b)**2) - dcos(wv_1*b))
 
-      zet = - 2 * cu * wv_3 / 3. * 
-     $ (m*psi_mkr_0*xi_kr_1 - xi_kr_0*psi_mkr_1) / 
-     $ (m*psi_mkr_0*psi_kr_1 - psi_kr_0*psi_mkr_1)
+      zet = - 2 * cu * wv_3 / 3. * (m*psi_mkr_0*xi_kr_1 - xi_kr_0*psi_mkr_1) / (m*psi_mkr_0*psi_kr_1 - psi_kr_0*psi_mkr_1)
       
       END IF
       
       RETURN 
-      END
+      end subroutine
       
-      SUBROUTINE PERMITTIVITY (mat,lambda,eps_ext,eps) 
+subroutine PERMITTIVITY (mat,lambda,eps_ext,eps) 
 
       implicit none
       integer*4, intent(in) :: mat
@@ -121,14 +109,13 @@
       pi = 4.0d0*datan(ru) 
       twopi = 2*pi 
 
-c------------------------SILVER--------------------------------------
+!c------------------------SILVER--------------------------------------
       if (mat .eq. 1) then 
            
       lambda_p = 136.1
       g_inf = .0019
       eps_0 = 5.
-      eps = eps_0 * ru - ( lambda / lambda_p )**2 / ( ru +  
-     $                              cu *  g_inf * lambda / lambda_p)
+      eps = eps_0 * ru - ( lambda / lambda_p )**2 / ( ru + cu *  g_inf * lambda / lambda_p)
       
  ! lambda_p = 109.5
     ! eps_0 = 5.45
@@ -138,7 +125,7 @@ c------------------------SILVER--------------------------------------
     !$                              cu *  g_inf * lambda / lambda_p )
      
       end if
-c------------------------GOLD----------------------------------------
+!c------------------------GOLD----------------------------------------
       if (mat .eq. 2) then 
       
       open(unit=81, file='johnson.gold.dat', status='old')
@@ -174,7 +161,7 @@ c------------------------GOLD----------------------------------------
         eps = (r1 + cu*r2)**2
 
       end if
-c------------------------TiN 800 C------------------------------------
+!c------------------------TiN 800 C------------------------------------
       if (mat .eq. 3) then 
            
 !      g_inf = .1795
@@ -201,12 +188,10 @@ c------------------------TiN 800 C------------------------------------
       
       omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
       
-      eps = eps_0 + Am1/(En1**2 - omega**2 - cu*Br1*omega) +
-     $              Am2/(En2**2 - omega**2 - cu*Br2*omega) +
-     $              Am3/(En3**2 - omega**2 - cu*Br3*omega)
+      eps = eps_0 + Am1/(En1**2 - omega**2 - cu*Br1*omega) + Am2/(En2**2 - omega**2 - cu*Br2*omega) + Am3/(En3**2 - omega**2 - cu*Br3*omega)
       
       end if
-c-----------------------------ZrN---------------------------------------
+!c-----------------------------ZrN---------------------------------------
       if (mat .eq. 4) then 
 
       g_inf = 0.5192
@@ -217,11 +202,10 @@ c-----------------------------ZrN---------------------------------------
       gamma_1 = 1.7369 
       omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
                   
-      eps = eps_0*ru - omega_p**2/(omega**2+cu*omega*g_inf) +
-     $ f_1*omega_1**2 / (omega_1**2-omega**2-cu*omega*gamma_1)
+      eps = eps_0*ru - omega_p**2/(omega**2+cu*omega*g_inf) + f_1*omega_1**2 / (omega_1**2-omega**2-cu*omega*gamma_1)
      
       end if
-c-----------------------------AZO---------------------------------------
+!c-----------------------------AZO---------------------------------------
       if (mat .eq. 5) then 
 
       g_inf = 0.04486
@@ -233,11 +217,10 @@ c-----------------------------AZO---------------------------------------
       gamma_1 = 0.1017 
       omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
                   
-      eps = eps_0*ru - omega_p**2/(omega**2+cu*omega*g_inf) +
-     $ f_1*omega_1**2 / (omega_1**2-omega**2-cu*omega*gamma_1)
+      eps = eps_0*ru - omega_p**2/(omega**2+cu*omega*g_inf) + f_1*omega_1**2 / (omega_1**2-omega**2-cu*omega*gamma_1)
      
       end if
-c-----------------------------GZO---------------------------------------
+!c-----------------------------GZO---------------------------------------
       if (mat .eq. 6) then 
 
       g_inf = 0.1229
@@ -249,11 +232,10 @@ c-----------------------------GZO---------------------------------------
       gamma_1 = 0.0924 
       omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
                   
-      eps = eps_0*ru - omega_p**2/(omega**2+cu*omega*g_inf) +
-     $ f_1*omega_1**2 / (omega_1**2-omega**2-cu*omega*gamma_1)
+      eps = eps_0*ru - omega_p**2/(omega**2+cu*omega*g_inf) + f_1*omega_1**2 / (omega_1**2-omega**2-cu*omega*gamma_1)
      
       end if
-c-----------------------------ITO---------------------------------------
+!c-----------------------------ITO---------------------------------------
       if (mat .eq. 7) then 
 
       g_inf = 0.155
@@ -265,11 +247,10 @@ c-----------------------------ITO---------------------------------------
       gamma_1 = 0.0919 
       omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
                   
-      eps = eps_0*ru - omega_p**2/(omega**2+cu*omega*g_inf) +
-     $ f_1*omega_1**2 / (omega_1**2-omega**2-cu*omega*gamma_1)
+      eps = eps_0*ru - omega_p**2/(omega**2+cu*omega*g_inf) + f_1*omega_1**2 / (omega_1**2-omega**2-cu*omega*gamma_1)
      
       end if
-c-----------------------------CUSTOM------------------------------------
+!c-----------------------------CUSTOM------------------------------------
       if (mat .eq. 8) then 
       
 !      eps = ru - (lambda/314)**2 / ( ru +  
@@ -282,4 +263,4 @@ c-----------------------------CUSTOM------------------------------------
       eps = eps / eps_ext
       
       RETURN
-      END
+      end subroutine

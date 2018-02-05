@@ -45,12 +45,10 @@
       real*8,       allocatable, dimension(:)   :: x,y,z
       complex*16,   allocatable, dimension(:)   :: work, zet
       complex*16,   allocatable, dimension(:,:) :: a, rhs, E
-      complex*16,   allocatable, dimension(:,:,:) :: GR
-      
-      
+      complex*16,   allocatable, dimension(:,:,:) :: GR     
       
 !c 
-!c------------------ Reading parameters from 'input.par' file ------------------------ 
+!c------------------ Reading parameters from 'inp.par' file ------------------------ 
 !c  
       CALL CPU_TIME (time_begin)
       
@@ -86,7 +84,7 @@
       open(unit=70,file="inp.par",status='old')
 
       do
-          read(70, *, end=10) TMPSTR_FULL
+        read(70, *, end=10) TMPSTR_FULL
 
         if (TMPSTR_FULL(1:4) .eq. "#END" ) stop
 
@@ -112,35 +110,8 @@
       end do
       
 10    rewind(70)
-       
-
-
-
-        
-      !dir_work = "C:\git_repositories\CADSLR\"
-      !dir_tab = "C:\git_repositories\CADSLR\"
-      !b = 38.115
-      !fill = 1.0
-      !N = 990
-      !dist = 838
-      !height  = 0
-      !aspect = 1.0
-      !nshape = 1.0
-      !naxis = 2.0
-      !omega_min = 0.9
-      !omega_max = 5.4
-      !nw  = 4501
-      !theta_pol = 90
-      !phi_pol  = 90
-      !theta_prop = 0
-      !phi_prop = 0
-      !excitation = 1
-      !mat_core = 2
-      !mat_shell = 2
-      !mat_sub = 3
-      !eps_ext  = 2.25
-      !substrate  = 0 
-
+      
+      close(70)
 
 !c
 !c----------------------Creating output file-----------------------
@@ -315,7 +286,7 @@
               eps_eff = eps_core
           end if
 
-          call susceptibility(eps_eff,N,li,nshape,naxis,b,aspect,eps_ext,zet)
+          call susceptibility(eps_eff,N,nshape,naxis,b,aspect,wv,zet)
 !c
 !c----------- Creating matrix A --------------------------------- 
 !c  

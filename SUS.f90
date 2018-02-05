@@ -1,4 +1,4 @@
-SUBROUTINE SUSCEPTIBILITY (eps, N, lambda, nshape, naxis, b, aspect, zet) 
+SUBROUTINE SUSCEPTIBILITY (eps, N, nshape, naxis, b, aspect, wv, zet) 
 !
 !   CALCULATION OF THE RECIPROCAL POLARIZABILITY ZET FOR PARTICLES OF SPHERICAL
 !   AND SPHEROIDAL SHAPES. NOTE THAT THE INPUT REQUIRES NORMALIZED EPSILON WITH
@@ -9,7 +9,7 @@ SUBROUTINE SUSCEPTIBILITY (eps, N, lambda, nshape, naxis, b, aspect, zet)
 !   
     implicit none
     integer*4, intent(in) :: N, nshape, naxis 
-    real*8,    intent(in) :: aspect, b, eps_ext, lambda
+    real*8,    intent(in) :: aspect, b, wv
     complex*16,intent(in) :: eps
     complex*16,intent(out) :: zet(3*N)
     integer*4 i
@@ -25,7 +25,7 @@ SUBROUTINE SUSCEPTIBILITY (eps, N, lambda, nshape, naxis, b, aspect, zet)
     pi = 4.0d0*datan(ru) 
     twopi = 2*pi 
       
-    wv_1 = dsqrt(eps_ext) * twopi / lambda
+    wv_1 = wv
     wv_2 = wv_1**2
     wv_3 = wv_1**3        
 

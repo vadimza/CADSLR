@@ -10,6 +10,11 @@ SUBROUTINE PERMITTIVITY (mat,lambda,eps_ext,eps)
       real*8 omega_1, gamma_1, omega_p, f_1, omega
       real*8 r1, r2, r1_old, r2_old
       real*8 l_min, l_max, l, l_old
+      
+      real*8 eps_inf, G_D
+      real*8 omega_L1, omega_01
+      real*8 omega_L2, gamma_2, omega_02 
+      
       complex*16 cu
       
       real*8 Am1, Am2, Am3, Br1, Br2, Br3, En1, En2, En3
@@ -73,17 +78,6 @@ SUBROUTINE PERMITTIVITY (mat,lambda,eps_ext,eps)
       end if
 !c------------------------TiN 800 C------------------------------------
       if (mat .eq. 3) then 
-           
-!      g_inf = .1795
-!      eps_0 = 4.855
-!      f_1 = 3.2907
-!      omega_p = 7.9308
-!      omega_1 = 4.2196
-!      gamma_1 = 2.0341
-!      omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
-!
-!      eps = eps_0*ru - omega_p**2/(omega**2+cu*omega*g_inf) +
-!     $ f_1*omega_1**2 / (omega_1**2-omega**2-cu*omega*gamma_1)
 
       eps_0 = 3.6684
       Am1 = 47.324
@@ -95,7 +89,6 @@ SUBROUTINE PERMITTIVITY (mat,lambda,eps_ext,eps)
       Br1 = 0.28058
       Br2 = 1.9188
       Br3 = 0.98543
-      
       omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
       
       eps = eps_0 + Am1/(En1**2 - omega**2 - cu*Br1*omega) + Am2/(En2**2 - omega**2 - cu*Br2*omega) + Am3/(En3**2 - omega**2 - cu*Br3*omega)
@@ -120,7 +113,6 @@ SUBROUTINE PERMITTIVITY (mat,lambda,eps_ext,eps)
 
       g_inf = 0.04486
       eps_0 = 3.5402
-      
       f_1 = 0.5095
       omega_p = 1.7473
       omega_1 = 4.2942
@@ -135,7 +127,6 @@ SUBROUTINE PERMITTIVITY (mat,lambda,eps_ext,eps)
 
       g_inf = 0.1229
       eps_0 = 3.2257
-      
       f_1 = 0.3859
       omega_p = 1.9895
       omega_1 = 4.050
@@ -150,7 +141,6 @@ SUBROUTINE PERMITTIVITY (mat,lambda,eps_ext,eps)
 
       g_inf = 0.155
       eps_0 = 3.528
-      
       f_1 = 0.3884
       omega_p = 1.78
       omega_1 = 4.210
@@ -162,13 +152,132 @@ SUBROUTINE PERMITTIVITY (mat,lambda,eps_ext,eps)
       end if
 !c-----------------------------CUSTOM------------------------------------
       if (mat .eq. 8) then 
-      
-!      eps = ru - (lambda/314)**2 / ( ru +  
-!     $                           cu *  0.014 * lambda/ 314)
-!     
+
       eps = (2.25,0.01)
       
       end if
+      
+      !c------------------------T=023--------------------------------------
+	  if (mat .eq. 23) then
+		eps_inf = 4.74
+		omega_p = 7.01
+		G_D		= 0.23
+		omega_L1= 36.7
+		gamma_1 = 1.45
+		omega_01= 4.10
+		omega_L2= 3.88
+		gamma_2 = 1.33
+		omega_02= 1.85
+        omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
+        
+        eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
+	  end if
+!c------------------------T=200--------------------------------------
+	  if (mat .eq. 200) then
+		eps_inf = 4.35
+		omega_p = 7.06
+		G_D		= 0.28
+		omega_L1= 39.0
+		gamma_1 = 1.15
+		omega_01= 4.01
+		omega_L2= 4.33
+		gamma_2 = 1.38
+		omega_02= 1.92
+        omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
+        
+        eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
+	  end if	  
+!c------------------------T=400--------------------------------------
+	  if (mat .eq. 400) then
+		eps_inf = 3.89
+		omega_p = 7.20
+		G_D		= 0.37
+		omega_L1= 54.4
+		gamma_1 = 1.40
+		omega_01= 4.24
+		omega_L2= 3.61
+		gamma_2 = 1.46
+		omega_02= 1.95
+        omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
+        
+        eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
+	  end if      
+!c------------------------T=500--------------------------------------
+	  if (mat .eq. 500) then
+		eps_inf = 3.58
+		omega_p = 7.25
+		G_D		= 0.40
+		omega_L1= 66.3
+		gamma_1 = 1.54
+		omega_01= 4.39
+		omega_L2= 3.58
+		gamma_2 = 1.54
+		omega_02= 1.94
+        omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
+        
+        eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
+	  end if	  
+!c------------------------T=600--------------------------------------
+	  if (mat .eq. 600) then
+		eps_inf = 3.37
+		omega_p = 7.31
+		G_D		= 0.45
+		omega_L1= 76.8
+		gamma_1 = 1.70
+		omega_01= 4.50
+		omega_L2= 2.91
+		gamma_2 = 1.44
+		omega_02= 1.96
+        omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
+        
+        eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
+	  end if
+!c------------------------T=700--------------------------------------
+	  if (mat .eq. 700) then
+		eps_inf = 3.14
+		omega_p = 7.37
+		G_D		= 0.50
+		omega_L1= 92.2
+		gamma_1 = 1.94
+		omega_01= 4.67
+		omega_L2= 2.22
+		gamma_2 = 1.27
+		omega_02= 1.94
+        omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
+        
+        eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
+	  end if
+!c------------------------T=800--------------------------------------
+	  if (mat .eq. 800) then
+		eps_inf = 2.67
+		omega_p = 7.39
+		G_D		= 0.58
+		omega_L1= 114.9
+		gamma_1 = 2.13
+		omega_01= 4.90
+		omega_L2= 1.15
+		gamma_2 = 0.92
+		omega_02= 2.00
+        omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
+        
+        eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
+	  end if
+!c------------------------T=900--------------------------------------
+	  if (mat .eq. 900) then
+		eps_inf = 2.08
+		omega_p = 7.17
+		G_D		= 0.66
+		omega_L1= 122.6
+		gamma_1 = 2.13
+		omega_01= 4.96
+		omega_L2= 0.46
+		gamma_2 = 0.58
+		omega_02= 2.01
+        omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
+        
+        eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
+	  end if
+      
       
       eps = eps / eps_ext
       

@@ -20,6 +20,7 @@
       integer*4 i_N_name, i_b_name, i_dist_name, i_eps_name
       integer*4 i_aspect_name, i_height_name, i_omega_name, i_core_name
       integer*4 i_dir_work, i_dir_tab
+      integer*4 types
       
       real*8 aspect, b, dist, height, eps_ext, fill, a_eff
       real*8 li, omega_min, omega_max, wi, dw
@@ -92,8 +93,9 @@
         if (TMPSTR_FULL(2:4) .eq. "TAB") read(70,*)             dir_tab  
         if (TMPSTR_FULL(2:8) .eq. "SHORTER") read(70,*)         b
         if (TMPSTR_FULL(2:8) .eq. "FILLING") read(70,*)         fill
+        if (TMPSTR_FULL(2:5) .eq. "TYPE") read(70,*)            types
         if (TMPSTR_FULL(2:7) .eq. "NUMBER") read(70,*)          N
-        if (TMPSTR_FULL(2:14) .eq. "INTERPARTICLE") read(70,*)  dist
+        if (TMPSTR_FULL(2:14) .eq."INTERPARTICLE") read(70,*)   dist
         if (TMPSTR_FULL(2:7) .eq. "HEIGHT") read(70,*)          height
         if (TMPSTR_FULL(2:7) .eq. "ASPECT") read(70,*)          aspect
         if (TMPSTR_FULL(2:9) .eq. "SPHEROID") read(70,*)        nshape
@@ -101,12 +103,12 @@
         if (TMPSTR_FULL(2:8) .eq. "OMEGA_1") read(70,*)         omega_min,  omega_max,  nw
         if (TMPSTR_FULL(2:7) .eq. "POL(E)") read(70,*)          theta_pol,  phi_pol
         if (TMPSTR_FULL(2:8) .eq. "PROP(K)") read(70,*)         theta_prop, phi_prop
-        if (TMPSTR_FULL(2:11) .eq. "EXCITATION") read(70,*)     excitation
+        if (TMPSTR_FULL(2:11) .eq."EXCITATION") read(70,*)      excitation
         if (TMPSTR_FULL(2:6) .eq. "CORE") read(70,*)            mat_core
         if (TMPSTR_FULL(2:7) .eq. "SHELL") read(70,*)           mat_shell
         if (TMPSTR_FULL(2:9) .eq. "MATERIAL") read(70,*)        mat_sub
         if (TMPSTR_FULL(2:8) .eq. "EPSILON") read(70,*)         eps_ext
-        if (TMPSTR_FULL(2:10) .eq. "SUBSTRATE") read(70,*)      substrate
+        if (TMPSTR_FULL(2:10) .eq."SUBSTRATE") read(70,*)       substrate
       end do
       
 10    close(70)
@@ -215,13 +217,148 @@
       if(.not. exist_flag_work) goto 206
       
       if (substrate .ne. 0 .and. substrate .ne. 1) goto 207      
+
+   
+
+!c 
+!c------------------- Writing coordinates for single chain--------------- 
+!c   
+      write (*,*) '--------------------------------------------------'
+      write (*,*) '2D lattice, NxN=', N,'x',N
+      write (*,*) 'b=', sngl(b)
+      write (*,*) 'period=', sngl(dist)
+      write (*,*) '--------------------------------------------------'
+
+     
+!c 
+!c------------------- for single chain---------------       
+!c      
+      if (types .eq. 1) THEN
+      allocate(x(1:N),y(1:N),z(1:N))
+        do j = 1, N
+          do i = 1, N 
+              x(i + N*(j-1)) = (i-1) * dist 
+              y(i + N*(j-1)) = (j-1) * dist
+              z(i + N*(j-1)) = height
+          end do
+        end do      
+      ENDIF
+      
+!c
+!c----------------------full lattice------------------------------
+!c         0 0 0 0 0
+!c         0 0 0 0 0
+!c         0 0 0 0 0
+!c         0 0 0 0 0
+!c         0 0 0 0 0
+!c-----------------------------------------------------------------
+!c
+      IF (types .eq. 2) THEN
+          N = N**2
+          allocate(x(1:N),y(1:N),z(1:N)) 
+          
+          do j = 1, N
+              do i = 1, N 
+                  x(i + N*(j-1)) = (i-1) * dist 
+                  y(i + N*(j-1)) = (j-1) * dist
+                  z(i + N*(j-1)) = rz
+              end do
+          end do
+      ENDIF
+!c
+!c----------------------cut lattice------------------------------
+!c         0 0 0 0 0
+!c         0   0   0
+!c         0 0 0 0 0
+!c         0   0   0
+!c         0 0 0 0 0
+!c-----------------------------------------------------------------
+!c
+      IF (types .eq. 3) THEN
+          N = N**2 - ((N-1)/2)**2
+          allocate(x(1:N),y(1:N),z(1:N))
+          k = 1
+          
+          do j = 1, N, 2
+              do i = 1, N
+                  x(k) = (i-1) * dist 
+                  y(k) = (j-1) * dist
+                  z(k) = rz
+                  k = k + 1
+              end do
+          end do
+
+          do j = 2, N-1, 2
+              do i = 1, N, 2 
+                  x(k) = (i-1) * dist 
+                  y(k) = (j-1) * dist
+                  z(k) = rz
+                  k = k + 1
+              end do
+          end do
+      ENDIF
+!c
+!c----------------------cut lattice------------------------------
+!c         0   0   0
+!c         0   0   0
+!c         0   0   0
+!c         0   0   0
+!c         0   0   0
+!c-----------------------------------------------------------------
+!c
+      IF (types .eq. 4) THEN
+          N = (N**2 + N)/2
+          allocate(x(1:N),y(1:N),z(1:N))
+          k = 1
+          
+          do j = 1, N, 2
+              do i = 1, N
+                  x(k) = (i-1) * dist 
+                  y(k) = (j-1) * dist
+                  z(k) = rz
+                  k = k + 1
+              end do
+          end do
+      ENDIF
+!c
+!c----------------------hex------------------------------
+!c           0 0 0 0 0
+!c            0 0 0 0 0
+!c           0 0 0 0 0
+!c            0 0 0 0 0
+!c           0 0 0 0 0
+!c-----------------------------------------------------------------
+!c
+      IF (types .eq. 5) THEN
+        N = N**2 
+        allocate(x(1:N),y(1:N),z(1:N)) 
+        k =1
+        
+        do i = 1, N, 2 
+            do j = 1, N 
+                x(k) = (j-1) * dist
+                y(k) = (i-1) * 0.5 * dist * 3**0.5
+                z(k) = rz 
+                k = k + 1
+            end do 
+        end do 
+
+        do i = 2, N-1, 2 
+            do j = 1, N 
+                x(k) = (j-1) * dist + 0.5 * dist 
+                y(k) = (i-1) * 0.5 * dist * 3**0.5 
+                z(k) = rz
+                k = k +1
+            end do 
+        end do 
+      ENDIF
+    
 !c      
 !c-----------------------Allocating workspace-----------------------------      
 !c      
-       allocate(x(1:N),y(1:N),z(1:N)) 
-       Na = 3*N
-       Nline = int(sqrt(real(N)))
 
+       Na = 3*N
+       
        allocate(a(1:Na,1:Na))
        allocate(zet(1:Na))
        allocate(E(1:Na,1:1),rhs(1:Na,1:1))
@@ -235,25 +372,11 @@
        pol(3)  = dcos(theta_pol)
 
       open(unit=70,file=out_spec, status='unknown')
-!c 
-!c------------------- Writing coordinates for single chain--------------- 
-!c   
-      write (*,*) '--------------------------------------------------'
-      write (*,*) '2D lattice, NxN=', Nline,'x',Nline
-      write (*,*) 'b=', sngl(b)
-      write (*,*) 'period=', sngl(dist)
-      write (*,*) '--------------------------------------------------'
-
-      do j = 1, Nline
-          do i = 1, Nline 
-              x(i + Nline*(j-1)) = (i-1) * dist 
-              y(i + Nline*(j-1)) = (j-1) * dist
-              z(i + Nline*(j-1)) = height
-          end do
-      end do
+      
+      
 !c   
 !c----------------------------------------------------------------------- 
-!c---------------------START LOOP OVER OMEGA-----------------------------       
+!c---------------------START LOOP OVER OMEGA-----------------------------             
       do 15 iw = 1,nw
 !c----------------------------------------------------------------------- 
 !c-----------------------------------------------------------------------       

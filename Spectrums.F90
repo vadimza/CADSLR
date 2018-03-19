@@ -57,27 +57,47 @@
       !take parameters from command line
       !copy of input file
       !__________________
-      !C:\git_repositories\CADSLR\	!	WORKING DIRECTORY
-      !C:\git_repositories\CADSLR\    ! TAB DIRECTORY
-      !38.115				!	SHORTER SEMIAXIS OR RADIUS [NM]	!	IF ASPECT RATIO = 1, THEN IT IS RADIUS OF SPHERES, VALID FOR ALL CHAIN TYPES
-      !1.				    !	FILLING FACTOR				
-      !900				!	NUMBER OF PARTICLES		        !	ONLY FOR CHAIN TYPE = 1;2;3;4;5;6
-      !838				!	INTERPARTICLE DISTANCE		    !	ONLY FOR CHAIN TYPE = 1;2;3;4;5;6
-      !0				    !	HEIGHT				            ! 	DISTANCE BETWEEN CENTER OF PARTICLE AND SURFACE OF SUBSTRATE
-      !1.				    !	ASPECT RATIO			        !	0 < ASPECT RATIO <= 1; 1 - SPHERE
-      !1				    ! 	SPHEROID TYPE			        ! 	1 - PROLATE, 2 - OBLATE [ONLY IF ASPECT RATIO < 1]
-      !2				    !	AXIS OF SYMMETRY		        ! 	1 - X, 2 - Y, 3 - Z	[ONLY IF ASPECT RATIO < 1]
-      !.9,5.4,4501        ! 	OMEGA_1 [rad/fs], OMEGA_2 [rad/fs], NUMBER OF POINTS	
-      !90,90				! 	THETA, PHI [DEG] FOR POL(E)     ! 	ANGLE (POL^Z) & ANGLE (POL_PROJECTION^X)      {X [90;0], Y [90;90], Z [0;0]}
-      !0,0				! 	THETA, PHI [DEG] FOR PROP(K)	!	ANGLE (PROP^Z) & ANGLE (PROP_PROJECTION^X)    {X [90;0], Y [90;90], Z [0;0]}
-      !1				    !	EXCITATION TYPE			        !	0 - TIP / 1 - PLANE WAVE 
-      !2				    !	MATERIAL OF CORE		        !	1 - Ag / 2 - Au / 3 - TiN 800 / 4 - ZrN / 5 - AZO / 6 - GZO / 7 - ITO / 8 - CUSTOM
-      !2				    !	MATERIAL OF SHELL		        !	1 - Ag / 2 - Au / 3 - TiN 800 / 4 - ZrN / 5 - AZO / 6 - GZO / 7 - ITO / 8 - CUSTOM
-      !3				    !	MATERIAL OF SUBSTRATE		    !	1 - Ag / 2 - Au / 3 - TiN 800 / 4 - ZrN / 5 - AZO / 6 - GZO / 7 - ITO / 8 - CUSTOM
-      !2.25				!	EPSILON OF HOST MEDIUM		    !	1. - VACUUM / 1.78 - WATER
-      !0				    !	SUBSTRATE 			            !	0-OFF / 1-ON
-      !___________________
-      
+!#WORKING DIRECTORY
+!C:\git_repositories\CADSLR\results\
+!#TAB DIRECTORY
+!C:\git_repositories\CADSLR\results\
+!#SHORTER SEMIAXIS OR RADIUS [NM]	                                        !	IF ASPECT RATIO = 1, THEN THIS IS THE RADIUS OF A SPHERE
+!38.115	
+!#FILLING FACTOR					
+!1.
+!#TYPE OF STRUCTURE														!1 - CHAIN, 2 - SQUARE, 3 - CUT FIRST, 4 - CUT ROW, 5 - HEX
+!1
+!#NUMBER OF PARTICLES													! INTERPARTICLE DISTANCE IN CASE OF 1D CHAIN OR NUMBER OF PARTICLES IN ROW(COLUMN)
+!9	
+!#INTERPARTICLE DISTANCE
+!838	
+!#HEIGHT			                                                        ! 	DISTANCE BETWEEN CENTER OF PARTICLE AND SURFACE OF SUBSTRATE
+!0
+!#ASPECT RATIO			                                                !	0 < ASPECT RATIO <= 1; 1 - SPHERE
+!.5
+!#SPHEROID TYPE			                                                ! 	1 - PROLATE, 2 - OBLATE [ONLY IF ASPECT RATIO < 1]
+!1
+!#AXIS OF SYMMETRY		                                                ! 	1 - X, 2 - Y, 3 - Z	[ONLY IF ASPECT RATIO < 1]
+!2
+!#OMEGA_1 [rad/fs], OMEGA_2 [rad/fs], NUMBER OF POINTS					
+!.9	5.4	4501
+!#POL(E) THETA, PHI [DEG]	                                                ! 	ANGLE (POL^Z) & ANGLE (POL_PROJECTION^X)      {X [90;0], Y [90;90], Z [0;0]}
+!90	90	
+!#PROP(K) THETA, PHI [DEG]	                                                !	ANGLE (PROP^Z) & ANGLE (PROP_PROJECTION^X)    {X [90;0], Y [90;90], Z [0;0]}
+!0	0	
+!#EXCITATION TYPE			                                        !	0 - TIP / 1 - PLANE WAVE
+!1	
+!#CORE MATERIAL 			                                                !	1 - Ag / 2 - Au / 3 - TiN 800 / 4 - ZrN / 5 - AZO / 6 - GZO / 7 - ITO / 8 - CUSTOM
+!2
+!#SHELL MATERIAL			                                                !	1 - Ag / 2 - Au / 3 - TiN 800 / 4 - ZrN / 5 - AZO / 6 - GZO / 7 - ITO / 8 - CUSTOM
+!2
+!#MATERIAL OF SUBSTRATE		                                                !	1 - Ag / 2 - Au / 3 - TiN 800 / 4 - ZrN / 5 - AZO / 6 - GZO / 7 - ITO / 8 - CUSTOM
+!2
+!#EPSILON OF HOST MEDIUM		                                                !	1. - VACUUM / 1.78 - WATER
+!2.25
+!#SUBSTRATE 			                                                !	0-OFF / 1-ON
+!0
+!#END
       !sample for commande line argument
       !all parameters from input.txt one by one
       !C:\...\dipole_app.exe C:\...\ C:\...\ 38.115 1. 900 838 0 1. 1 2 0.9 5.4 4501 90 90 0 0 1 2 2 3 2.25 0

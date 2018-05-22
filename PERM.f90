@@ -1,4 +1,4 @@
-SUBROUTINE PERMITTIVITY (mat,lambda,eps_ext,eps) 
+SUBROUTINE PERMITTIVITY_ED (mat,lambda,eps_ext,eps) 
 
       implicit none
       integer*4, intent(in) :: mat
@@ -27,24 +27,55 @@ SUBROUTINE PERMITTIVITY (mat,lambda,eps_ext,eps)
 !c------------------------SILVER--------------------------------------
       if (mat .eq. 1) then 
            
-      lambda_p = 136.1
-      g_inf = .0019
-      eps_0 = 5.
-      eps = eps_0 * ru - ( lambda / lambda_p )**2 / ( ru + cu *  g_inf * lambda / lambda_p)
+      !lambda_p = 136.1
+      !g_inf = .0019
+      !eps_0 = 5.
+      !eps = eps_0 * ru - ( lambda / lambda_p )**2 / ( ru + cu *  g_inf * lambda / lambda_p)
       
- ! lambda_p = 109.5
+    ! lambda_p = 109.5
     ! eps_0 = 5.45
     ! g_inf = .00485
-    ! eps = eps_0 * ru - 
-    !$ 0.73 * ( lambda / lambda_p )**2 / ( ru +  
-    !$                              cu *  g_inf * lambda / lambda_p )
-     
+    ! eps = eps_0 * ru - 0.73 * ( lambda / lambda_p )**2 / ( ru + cu *  g_inf * lambda / lambda_p )
+     open(unit=81, file='johnson.silver.dat', status='old')
+        
+        l_min = 10000.
+        l_max = 0.
+        read(81,*,end=14) l, r1, r2
+        if(l .lt. l_min) l_min = l
+        if(l .gt. l_max) l_max = l
+        i = 1
+        l_old = l
+        r1_old = r1
+        r2_old = r2
+
+15	continue
+	read(81,*,end=14) l, r1, r2
+        if(l .lt. l_min) l_min = l
+        if(l .gt. l_max) l_max = l
+	i = i + 1
+        if(l .eq. lambda) goto 14
+        if( (lambda-l_old)*(lambda-l) .le. 0.) then
+           r1 = r1_old + (lambda-l_old)*(r1-r1_old)/(l-l_old)
+           r2 = r2_old + (lambda-l_old)*(r2-r2_old)/(l-l_old)
+           goto 14
+        end if
+        l_old = l
+        r1_old = r1
+        r2_old = r2
+        goto 15
+14      continue
+        close (unit=81)
+        
+        eps = (r1 + cu*r2)**2
+          
+          
+          
       end if
 !c------------------------GOLD----------------------------------------
       if (mat .eq. 2) then 
       
       open(unit=81, file='johnson.gold.dat', status='old')
-
+        
         l_min = 10000.
         l_max = 0.
         read(81,*,end=13) l, r1, r2

@@ -25,24 +25,22 @@
       integer :: output_data
       
       real*8 aspect, b, dist, height, eps_ext, fill, a_eff
-      real*8 mu_eff, mu_sub
       real*8 li, omega_min, omega_max, wi, dw
-      real*8 theta_pol, phi_pol, theta_prop, phi_prop
+      real*8 theta_pol_ED, phi_pol_ED, theta_pol_MD, phi_pol_MD, theta_prop, phi_prop
       real*8 ru, rz, pi, twopi
       real*8 wv, wv_0, wv_1, wv_2, wv_3
       real*8 xij, yij, zij, rij, rij_1, rij_2, rij_3, d_alpha_beta 
       real*8 rnijx, rnijy, rnijz, rnij_alpha, rnij_beta, rnij_alpha_beta
       real*8 t1_g, t2_g, t3_g, arg
       real*8 t1_c, t2_c
-      real*8 prop_elec(3), pol_elec(3)
-      real*8 prop_magn(3), pol_magn(3)
+      real*8 prop(3), pol_elec(3), pol_magn(3)
       real*8 time_begin, time_end
       real*8 da, d2a
       real*8 arg_inc, arg_ref
       real*8 sum_e, sum_a, sum_s, qe, qa, qs, yabs, delta
       
       complex*16 cu, cz, phase_fact, ref
-      complex*16 eps_core, eps_shell, eps_sub, eps_eff
+      complex*16 eps_core, eps_shell, eps_sub, eps_ED, eps_MD
       complex*16 GRxx, GRyy, GRzz, GRxz, GRzx
       complex*16 dn0, cdx, cdy, cdz
       complex*16 sum_x, sum_y, sum_z
@@ -53,7 +51,7 @@
       complex*16,   allocatable, dimension(:,:) :: a, rhs
       complex*16,   allocatable, dimension(:,:,:) :: GR
       
-      complex*16,   allocatable, dimension(:,:) :: E_field, B_field, field_ED_MD
+      complex*16,   allocatable, dimension(:,:) :: E_field, H_field, field_ED_MD
       complex*16,   allocatable, dimension(:,:) :: a_ED, a_MD, a_ED_MD 
       complex*16,   allocatable, dimension(:,:) :: rhs_ED_MD
       complex*16,   allocatable, dimension(:,:) :: G_tenzor, C_tenzor
@@ -131,7 +129,7 @@
         if (TMPSTR_FULL(2:9) .eq. "SPHEROID") read(70,*)        nshape
         if (TMPSTR_FULL(2:5) .eq. "AXIS") read(70,*)            naxis
         if (TMPSTR_FULL(2:8) .eq. "OMEGA_1") read(70,*)         omega_min,  omega_max,  nw
-        if (TMPSTR_FULL(2:7) .eq. "POL(E)") read(70,*)          theta_pol,  phi_pol
+        if (TMPSTR_FULL(2:7) .eq. "POL(E)") read(70,*)          theta_pol_ED,  phi_pol_ED
         if (TMPSTR_FULL(2:8) .eq. "PROP(K)") read(70,*)         theta_prop, phi_prop
         if (TMPSTR_FULL(2:11).eq. "EXCITATION") read(70,*)      excitation
         if (TMPSTR_FULL(2:6) .eq. "CORE") read(70,*)            mat_core
@@ -160,9 +158,9 @@
       write (aspect_name, '(I4)') int(aspect*10) 
       aspect_name = trim(adjustl(aspect_name))
             
-      write (theta_name, '(I4)') int(theta_pol) 
+      write (theta_name, '(I4)') int(theta_pol_ED) 
       theta_name = trim(adjustl(theta_name))
-      write (phi_name, '(I4)') int(phi_pol) 
+      write (phi_name, '(I4)') int(phi_pol_ED) 
       phi_name = trim(adjustl(phi_name))
 
       write (pol_name, 104) theta_name,phi_name 
@@ -233,8 +231,10 @@
 !c
 !c--------------------Converting degrees to radians---------------------
 !c
-      theta_pol = theta_pol * pi / 180.
-      phi_pol = phi_pol * pi / 180.
+      theta_pol_ED = theta_pol_ED * pi / 180.
+      phi_pol_ED = phi_pol_ED * pi / 180.
+      theta_pol_MD = theta_pol_MD * pi / 180.
+      phi_pol_MD = phi_pol_MD * pi / 180.
       theta_prop = theta_prop * pi / 180.
       phi_prop = phi_prop * pi / 180.
 !c      
@@ -242,7 +242,7 @@
 !c
       if (nshape .ne. 1 .and. nshape .ne. 2) goto 202
       if (naxis .ne. 1 .and. naxis .ne. 2 .and. naxis .ne. 3) goto 203
-      if (sin(theta_pol)*cos(phi_pol) * sin(theta_prop)*cos(phi_prop) + sin(theta_pol)*sin(phi_pol) * sin(theta_prop)*sin(phi_prop) + cos(theta_pol)*cos(theta_prop) .gt. 1.E-10) goto 205
+      if (sin(theta_pol_ED)*cos(phi_pol_ED) * sin(theta_prop)*cos(phi_prop) + sin(theta_pol_ED)*sin(phi_pol_ED) * sin(theta_prop)*sin(phi_prop) + cos(theta_pol_ED)*cos(theta_prop) .gt. 1.E-10) goto 205
       
       inquire(DIRECTORY=dir_work, EXIST=exist_flag_work)
       if(.not. exist_flag_work) goto 206
@@ -392,7 +392,7 @@
 
        Na = 3*N
   
-       allocate(E_field(1:Na,1:1), B_field(1:Na,1:1))
+       allocate(E_field(1:Na,1:1), H_field(1:Na,1:1))
        allocate(a_ED_MD(1:2*Na,1:2*Na))
        allocate(zet_ED(1:Na))
        allocate(zet_MD(1:Na))
@@ -402,22 +402,17 @@
        allocate(G_tenzor(1:Na,1:Na), C_tenzor(1:Na,1:Na))
        
        
-       prop_elec(1) = dsin(theta_prop)*dcos(phi_prop) 
-       prop_elec(2) = dsin(theta_prop)*dsin(phi_prop)
-       prop_elec(3) = dcos(theta_prop)
-       pol_elec(1)  = dsin(theta_pol)*dcos(phi_pol)
-       pol_elec(2)  = dsin(theta_pol)*dsin(phi_pol)
-       pol_elec(3)  = dcos(theta_pol)
-    
-
+       prop(1) = dsin(theta_prop)*dcos(phi_prop) 
+       prop(2) = dsin(theta_prop)*dsin(phi_prop)
+       prop(3) = dcos(theta_prop)
        
+       pol_elec(1)  = dsin(theta_pol_ED)*dcos(phi_pol_ED)
+       pol_elec(2)  = dsin(theta_pol_ED)*dsin(phi_pol_ED)
+       pol_elec(3)  = dcos(theta_pol_ED)
        
-       prop_magn(1) = dsin(theta_prop)*dcos(phi_prop) 
-       prop_magn(2) = dsin(theta_prop)*dsin(phi_prop)
-       prop_magn(3) = dcos(theta_prop)
-       pol_magn(1)  = dsin(theta_pol)*dcos(phi_pol)
-       pol_magn(2)  = dsin(theta_pol)*dsin(phi_pol)
-       pol_magn(3)  = dcos(theta_pol)
+       pol_magn(1)  = prop(2)*pol_elec(3) - prop(3)*pol_elec(2)
+       pol_magn(2)  = prop(3)*pol_elec(1) - prop(1)*pol_elec(3)
+       pol_magn(3)  = prop(1)*pol_elec(2) - prop(2)*pol_elec(1)
     
 
       open(unit=70,file=out_spec, status='unknown')
@@ -447,17 +442,22 @@
           wv_2 = wv*wv 
           wv_3 = wv_2*wv 
        
-          call permittivity (mat_shell,li,eps_ext,eps_shell)
-          call permittivity (mat_core, li,eps_ext,eps_core)
+          call permittivity_ED (mat_shell,li,eps_ext,eps_shell)
+          call permittivity_ED (mat_core, li,eps_ext,eps_core)
       
-          eps_eff = eps_shell * (eps_core + 2.*eps_shell + 2.*fill*(eps_core-eps_shell))/ (eps_core + 2.*eps_shell - fill*(eps_core-eps_shell))
-
-          call susceptibility(eps_eff,N,nshape,naxis,b,aspect,wv,zet_ED)
+          eps_ED = eps_shell * (eps_core + 2.*eps_shell + 2.*fill*(eps_core-eps_shell))/ (eps_core + 2.*eps_shell - fill*(eps_core-eps_shell))
+          
+          
+          
+          
+          eps_MD = 0.! eps_ED
+          
+          call susceptibility(eps_ED, eps_MD, N, nshape, naxis, b, aspect, wv, zet_ED, zet_MD)
          
           
           !magn part
           !effective magnetic permittivity of particle
-          mu_eff = eps_eff
+          
 !c
 !c----------- Creating matrix A --------------------------------- 
 !c  
@@ -536,15 +536,7 @@
 21        continue
  
 1     continue 
-      
-         !print C_tenzor
-        open(unit=71,file="C_tenzor.txt",status='UNKNOWN')
-        do i = 1, 3 * N
-                write (71, '(100(g12.5,2x))') (C_tenzor(i, j), j = 1 , 3 * N)
-                write (71, "")
-        end do
-        close (unit=71) 
-      
+        
       
       do 4, i=2,Na 
           do 4, j=1,i-1 
@@ -555,15 +547,33 @@
       do 5, i=1,Na
           do 5, j=1,Na 
               if (i .eq. j) then        !for diagonal elements a_ED matrix
-                  a_ED(j,i) = zet_ED(i)! - G_ED(j,i)
-                  !a_MD(j,i) = zet_MD(i)
+                  a_ED(j,i) = zet_ED(i)! - G_tenzor(j,i)
+                  a_MD(j,i) = zet_MD(i)! - C_tenzor(j,i)
                   
               else                      !for off diagonal elements G_ED matrix
                   G_tenzor(j,i) = -1.0 * G_tenzor(j,i)
                   
               end if
- 5    continue
+5     continue
  
+      
+        ! !print C_tenzor
+        !open(unit=71,file="C_tenzor.txt",status='UNKNOWN')
+        !do i = 1, 3 * N
+        !        write (71, '(100(g12.5,2x))') (C_tenzor(i, j), j = 1 , 3 * N)
+        !        write (71, "")
+        !end do
+        !close (unit=71) 
+        !
+        ! !print G_tenzor
+        !open(unit=71,file="G_tenzor.txt",status='UNKNOWN')
+        !do i = 1, 3 * N
+        !        write (71, '(100(g12.5,2x))') (G_tenzor(i, j), j = 1 , 3 * N)
+        !        write (71, "")
+        !end do
+        !close (unit=71) 
+      
+      
    
 !c 
 !c-------- Costructing ED MD matrix A  -------------------------------- 
@@ -605,7 +615,7 @@
     do i = 1, 3 * N
         do j = 1, 3 * N
             if (i .ne. j) then 
-                a_ED_MD(i,3*N+ j) = - C_tenzor(i, j)
+                a_ED_MD(i,3*N+ j) = -1.0 *  C_tenzor(i, j)
             end if
         end do
     end do
@@ -643,7 +653,7 @@
     if (excitation .eq. 1) then           !Plane wave
         
         do i=1,N
-            arg_inc = prop_elec(1) * x(i) + prop_elec(2) * y(i) + prop_elec(3) * z(i)
+            arg_inc = (1) * x(i) + prop(2) * y(i) + prop(3) * z(i)
             E_field(3*i-2,1) = pol_elec(1) * cdexp(cu * wv_1 * arg_inc)
             E_field(3*i-1,1) = pol_elec(2) * cdexp(cu * wv_1 * arg_inc)
             E_field(3*i  ,1) = pol_elec(3) * cdexp(cu * wv_1 * arg_inc)
@@ -656,44 +666,44 @@
     END IF
     
 !_________________________________for magnetic part 
-    B_field = cz
+    H_field = cz
   
     if (excitation .eq. 1) then           !Plane wave
         
         do i=1,N
-            arg_inc = prop_magn(1) * x(i) + prop_magn(2) * y(i) + prop_magn(3) * z(i)
-            B_field(3*i-2,1) = pol_magn(1) * cdexp(cu * wv_1 * arg_inc)
-            B_field(3*i-1,1) = pol_magn(2) * cdexp(cu * wv_1 * arg_inc)
-            B_field(3*i  ,1) = pol_magn(3) * cdexp(cu * wv_1 * arg_inc)
+            arg_inc = prop(1) * x(i) + prop(2) * y(i) + prop(3) * z(i)
+            H_field(3*i-2,1) = pol_magn(1) * cdexp(cu * wv_1 * arg_inc)
+            H_field(3*i-1,1) = pol_magn(2) * cdexp(cu * wv_1 * arg_inc)
+            H_field(3*i  ,1) = pol_magn(3) * cdexp(cu * wv_1 * arg_inc)
             
         end do
    
     else                                  !Tip
-        B_field(1,1) = pol_magn(1)  
-        B_field(2,1) = pol_magn(2) 
-        B_field(3,1) = pol_magn(3)
+        H_field(1,1) = pol_magn(1)  
+        H_field(2,1) = pol_magn(2) 
+        H_field(3,1) = pol_magn(3)
         
     END IF    
     
 
     do i = 1, Na
     rhs_ED_MD(i,1)    = E_field(i,1)
-    rhs_ED_MD(Na+i,1) = B_field(i,1)
+    rhs_ED_MD(Na+i,1) = H_field(i,1)
     end do 
     
 !c 
 !c--------- Solving equations --------------------------------------- 
 !c  
-      liwork = Na 
+      liwork = 2*Na 
       allocate(iwork(liwork)) 
  
       allocate(work(1)) 
-      call zsysv('U',Na,1,a,Na,iwork,rhs_ED_MD,Na,work,-1,info) 
+      call zsysv('U',2*Na,1,a_ED_MD,2*Na,iwork,rhs_ED_MD,2*Na,work,-1,info) 
       lwork = work(1) 
       deallocate(work) 
       allocate(work(lwork))
       
-      call zsysv('U',Na,1,a,Na,iwork,rhs_ED_MD,Na,work,lwork,info) 
+      call zsysv('U',2*Na,1,a_ED_MD,2*Na,iwork,rhs_ED_MD,2*Na,work,lwork,info) 
  
       if(info .ne. 0) then 
          write(*,*) 'Matrix inversion has failed; exiting' 
@@ -740,17 +750,17 @@
 
       do i=1,Na
       
-      sum_e = sum_e + aimag(rhs(i,1) * dconjg(E_field(i,1))) 
-      sum_a = sum_a + rhs(i,1) * dconjg(rhs(i,1))
-      sum_s = sum_s + rhs(i,1) * dconjg(rhs(i,1))
+      sum_e = sum_e + aimag(rhs_ED_MD(i,1) * dconjg(E_field(i,1)))
+      sum_a = sum_a + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1))
+      sum_s = sum_s + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1))
       
       end do
       
-      if (aspect .eq. 1) delta = -dimag((eps_eff + 2.*ru) / (eps_ext * b**3 * (eps_eff - ru)))
+      if (aspect .eq. 1) delta = -dimag((eps_ED + 2.*ru) / (eps_ext * b**3 * (eps_ED - ru)))
      
-      if (nshape .eq. 1 .and. aspect .ne. ru) delta = -dimag(aspect * (eps_eff + 2.*ru) / (eps_ext * b**3 * (eps_eff - ru)))
+      if (nshape .eq. 1 .and. aspect .ne. ru) delta = -dimag(aspect * (eps_ED + 2.*ru) / (eps_ext * b**3 * (eps_ED - ru)))
      
-      if (nshape .eq. 2 .and. aspect .ne. ru) delta = -dimag(aspect**2 * (eps_eff + 2.*ru) / (eps_ext * b**3 * (eps_eff - ru)))
+      if (nshape .eq. 2 .and. aspect .ne. ru) delta = -dimag(aspect**2 * (eps_ED + 2.*ru) / (eps_ext * b**3 * (eps_ED - ru)))
       
       qe = 4.*wv_1*sum_e/(float(N)*a_eff**2)
       qa = 4.*wv_1*delta*sum_a/(float(N)*a_eff**2)
@@ -765,8 +775,8 @@
 !c---------------------END LOOP OVER OMEGA-----------------------------  
 !c--------------------------------------------------------------------- 
 !c       
-      deallocate(a)
-      deallocate(rhs)
+      deallocate(a_ED_MD)
+      deallocate(rhs_ED_MD)
       close(70)
       close(80)
  

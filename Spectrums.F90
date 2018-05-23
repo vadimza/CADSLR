@@ -113,9 +113,9 @@
         if (TMPSTR_FULL(2:4) .eq. "TAB") read(70,*)             dir_tab  
         if (TMPSTR_FULL(2:8) .eq. "SHORTER") read(70,*)         b
         if (TMPSTR_FULL(2:8) .eq. "FILLING") read(70,*)         fill
-        if (TMPSTR_FULL(2:5) .eq. "TYPE") read(70,*)            types
+        if (TMPSTR_FULL(2:10).eq. "STRUCTURE") read(70,*)       types
         if (TMPSTR_FULL(2:7) .eq. "NUMBER") read(70,*)          N
-        if (TMPSTR_FULL(2:14) .eq."INTERPARTICLE") read(70,*)   dist
+        if (TMPSTR_FULL(2:14).eq. "INTERPARTICLE") read(70,*)   dist
         if (TMPSTR_FULL(2:7) .eq. "HEIGHT") read(70,*)          height
         if (TMPSTR_FULL(2:7) .eq. "ASPECT") read(70,*)          aspect
         if (TMPSTR_FULL(2:9) .eq. "SPHEROID") read(70,*)        nshape
@@ -123,12 +123,12 @@
         if (TMPSTR_FULL(2:8) .eq. "OMEGA_1") read(70,*)         omega_min,  omega_max,  nw
         if (TMPSTR_FULL(2:7) .eq. "POL(E)") read(70,*)          theta_pol,  phi_pol
         if (TMPSTR_FULL(2:8) .eq. "PROP(K)") read(70,*)         theta_prop, phi_prop
-        if (TMPSTR_FULL(2:11) .eq."EXCITATION") read(70,*)      excitation
+        if (TMPSTR_FULL(2:11).eq. "EXCITATION") read(70,*)      excitation
         if (TMPSTR_FULL(2:6) .eq. "CORE") read(70,*)            mat_core
         if (TMPSTR_FULL(2:7) .eq. "SHELL") read(70,*)           mat_shell
         if (TMPSTR_FULL(2:9) .eq. "MATERIAL") read(70,*)        mat_sub
         if (TMPSTR_FULL(2:8) .eq. "EPSILON") read(70,*)         eps_ext
-        if (TMPSTR_FULL(2:10) .eq."SUBSTRATE") read(70,*)       substrate
+        if (TMPSTR_FULL(2:10).eq. "SUBSTRATE") read(70,*)       substrate
       end do
       
 10    close(70)
@@ -243,6 +243,9 @@
 !c 
 !c------------------- Writing coordinates for single chain--------------- 
 !c   
+!c 
+!c------------------- Writing coordinates for single chain--------------- 
+!c   
       write (*,*) '--------------------------------------------------'
       write (*,*) '2D lattice, NxN=', N,'x',N
       write (*,*) 'b=', sngl(b)
@@ -255,12 +258,15 @@
 !c      
       if (types .eq. 1) THEN
       allocate(x(1:N),y(1:N),z(1:N))
-        do j = 1, N
-          do i = 1, N 
-              x(i + N*(j-1)) = (i-1) * dist 
-              y(i + N*(j-1)) = (j-1) * dist
-              z(i + N*(j-1)) = height
-          end do
+      
+      Nline = int(real(N))
+      
+      do j = 1, Nline
+          !do i = 1, Nline 
+              x(j) = (j-1) * dist 
+              y(j ) = rz!(j-1) * dist
+              z(j ) = height
+          !end do
         end do      
       ENDIF
       
@@ -274,14 +280,15 @@
 !c-----------------------------------------------------------------
 !c
       IF (types .eq. 2) THEN
-          N = N**2
+          Nline = N
+          N = N**2.
           allocate(x(1:N),y(1:N),z(1:N)) 
           
-          do j = 1, N
-              do i = 1, N 
-                  x(i + N*(j-1)) = (i-1) * dist 
-                  y(i + N*(j-1)) = (j-1) * dist
-                  z(i + N*(j-1)) = rz
+          do j = 1, Nline
+              do i = 1, Nline 
+                  x(i + Nline*(j-1)) = (i-1) * dist 
+                  y(i + Nline*(j-1)) = (j-1) * dist
+                  z(i + Nline*(j-1)) = height
               end do
           end do
       ENDIF
@@ -303,7 +310,7 @@
               do i = 1, N
                   x(k) = (i-1) * dist 
                   y(k) = (j-1) * dist
-                  z(k) = rz
+                  z(k) = height
                   k = k + 1
               end do
           end do
@@ -312,7 +319,7 @@
               do i = 1, N, 2 
                   x(k) = (i-1) * dist 
                   y(k) = (j-1) * dist
-                  z(k) = rz
+                  z(k) = height
                   k = k + 1
               end do
           end do
@@ -335,7 +342,7 @@
               do i = 1, N
                   x(k) = (i-1) * dist 
                   y(k) = (j-1) * dist
-                  z(k) = rz
+                  z(k) = height
                   k = k + 1
               end do
           end do
@@ -358,7 +365,7 @@
             do j = 1, N 
                 x(k) = (j-1) * dist
                 y(k) = (i-1) * 0.5 * dist * 3**0.5
-                z(k) = rz 
+                z(k) = height 
                 k = k + 1
             end do 
         end do 
@@ -367,7 +374,7 @@
             do j = 1, N 
                 x(k) = (j-1) * dist + 0.5 * dist 
                 y(k) = (i-1) * 0.5 * dist * 3**0.5 
-                z(k) = rz
+                z(k) = height
                 k = k +1
             end do 
         end do 

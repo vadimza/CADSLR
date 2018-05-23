@@ -450,7 +450,7 @@
           
           
           
-          eps_MD = 0.! eps_ED
+          eps_MD = eps_ED
           
           call susceptibility(eps_ED, eps_MD, N, nshape, naxis, b, aspect, wv, zet_ED, zet_MD)
          
@@ -582,14 +582,14 @@
     !left up part       diagonal elements
     do i = 1, 3 * N
         do j = 1, 3 * N
-           a_ED_MD(i, j) = a_ED(i, j)
+            if(i .eq. j)   a_ED_MD(i, j) = a_ED(i, j)
         end do
     end do
     
     !left up part        off diagonal elements
     do i = 1, 3 * N
         do j = 1, 3 * N
-           a_ED_MD(i, j) = G_tenzor(i, j)
+           if(i .ne. j) a_ED_MD(i, j) = G_tenzor(i, j)
         end do
     end do
     
@@ -597,7 +597,7 @@
     do i = 1, 3 * N
         do j = 1, 3 * N
            if (i .eq. j) then 
-                a_ED_MD(3*N+ i,3*N+ j) = a_MD(i, j)
+                if(i .eq. j) a_ED_MD(3*N+ i,3*N+ j) = a_MD(i, j)
            end if
         end do
     end do
@@ -606,7 +606,7 @@
     do i = 1, 3 * N
         do j = 1, 3 * N
            if (i .ne. j) then 
-                a_ED_MD(3*N+ i,3*N+ j) = G_tenzor(i, j)
+                if(i .ne. j) a_ED_MD(3*N+ i,3*N+ j) = G_tenzor(i, j)
            end if
         end do
     end do
@@ -615,7 +615,7 @@
     do i = 1, 3 * N
         do j = 1, 3 * N
             if (i .ne. j) then 
-                a_ED_MD(i,3*N+ j) = -1.0 *  C_tenzor(i, j)
+                if(i .ne. j) a_ED_MD(i,3*N+ j) = -1.0 *  C_tenzor(i, j)
             end if
         end do
     end do
@@ -624,7 +624,7 @@
     do i = 1, 3 * N
         do j = 1, 3 * N
             if (i .ne. j) then 
-                a_ED_MD(3*N+ i,j) = C_tenzor(i, j)
+                if(i .ne. j) a_ED_MD(3*N+ i,j) = C_tenzor(i, j)
             end if
         end do
     end do
@@ -749,18 +749,25 @@
      
 
       do i=1,Na
-      
-      sum_e = sum_e + aimag(rhs_ED_MD(i,1) * dconjg(E_field(i,1)))
-      sum_a = sum_a + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1))
-      sum_s = sum_s + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1))
-      
+      !ED+MD
+      sum_e = sum_e + aimag(rhs_ED_MD(i,1) * dconjg(E_field(i,1))) + aimag(rhs_ED_MD(Na + i -1,1)* dconjg(H_field(i,1)))
+      sum_a = sum_a + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))
+      sum_s = sum_s + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))
+      !!ED
+      !sum_e = sum_e + aimag(rhs_ED_MD(i,1) * dconjg(E_field(i,1))) 
+      !sum_a = sum_a + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) 
+      !sum_s = sum_s + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) 
+      !!MD
+      !sum_e = sum_e + aimag(rhs_ED_MD(Na + i -1,1)* dconjg(H_field(i,1)))
+      !sum_a = sum_a + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))
+      !sum_s = sum_s + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))      
       end do
       
       if (aspect .eq. 1) delta = -dimag((eps_ED + 2.*ru) / (eps_ext * b**3 * (eps_ED - ru)))
      
-      if (nshape .eq. 1 .and. aspect .ne. ru) delta = -dimag(aspect * (eps_ED + 2.*ru) / (eps_ext * b**3 * (eps_ED - ru)))
+      !if (nshape .eq. 1 .and. aspect .ne. ru) delta = -dimag(aspect * (eps_ED + 2.*ru) / (eps_ext * b**3 * (eps_ED - ru)))
      
-      if (nshape .eq. 2 .and. aspect .ne. ru) delta = -dimag(aspect**2 * (eps_ED + 2.*ru) / (eps_ext * b**3 * (eps_ED - ru)))
+      !if (nshape .eq. 2 .and. aspect .ne. ru) delta = -dimag(aspect**2 * (eps_ED + 2.*ru) / (eps_ext * b**3 * (eps_ED - ru)))
       
       qe = 4.*wv_1*sum_e/(float(N)*a_eff**2)
       qa = 4.*wv_1*delta*sum_a/(float(N)*a_eff**2)

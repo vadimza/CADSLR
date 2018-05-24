@@ -84,7 +84,7 @@ SUBROUTINE SUSCEPTIBILITY (eps_ED, eps_MD, N, nshape, naxis, b, aspect, wv, zet_
 
         !zet_ED = (eps + 2.*ru) / (eps - ru) / b**3 - wv_2 / b - 2. * cu * wv_3 / 3.
       !ED polarizability
-        m = eps_ED
+        m = cdsqrt(eps_ED)
       psi_mkr_0 = cdsin(m*wv_1*b)/(m*wv_1*b) - cdcos(m*wv_1*b)
       psi_mkr_1 = cdcos(m*wv_1*b)/(m*wv_1*b) - cdsin(m*wv_1*b)/((m*wv_1*b)**2) + cdsin(m*wv_1*b)
      
@@ -101,7 +101,7 @@ SUBROUTINE SUSCEPTIBILITY (eps_ED, eps_MD, N, nshape, naxis, b, aspect, wv, zet_
       
       
       !MD polarizability      
-        m = eps_MD
+        m = cdsqrt(eps_MD)
       psi_mkr_0 = cdsin(m*wv_1*b)/(m*wv_1*b) - cdcos(m*wv_1*b)
       psi_mkr_1 = cdcos(m*wv_1*b)/(m*wv_1*b) - cdsin(m*wv_1*b)/((m*wv_1*b)**2) + cdsin(m*wv_1*b)
      

@@ -247,8 +247,6 @@
       inquire(DIRECTORY=dir_work, EXIST=exist_flag_work)
       if(.not. exist_flag_work) goto 206
       
-   
-
 !c 
 !c------------------- Writing coordinates for single chain--------------- 
 !c   
@@ -257,12 +255,11 @@
       write (*,*) 'b=', sngl(b)
       write (*,*) 'period=', sngl(dist)
       write (*,*) '--------------------------------------------------'
-
      
 !c 
 !c------------------- for single chain---------------       
 !c      
-      if (types .eq. 1) THEN
+      IF (types .eq. 1) THEN
       allocate(x(1:N),y(1:N),z(1:N))
       
       Nline = int(real(N))
@@ -414,9 +411,7 @@
        pol_magn(2)  = prop(3)*pol_elec(1) - prop(1)*pol_elec(3)
        pol_magn(3)  = prop(1)*pol_elec(2) - prop(2)*pol_elec(1)
     
-
-      open(unit=70,file=out_spec, status='unknown')
-      
+      open(unit=70,file=out_spec, status='unknown')     
       
 !c   
 !c----------------------------------------------------------------------- 
@@ -446,10 +441,7 @@
           call permittivity_ED (mat_core, li,eps_ext,eps_core)
       
           eps_ED = eps_shell * (eps_core + 2.*eps_shell + 2.*fill*(eps_core-eps_shell))/ (eps_core + 2.*eps_shell - fill*(eps_core-eps_shell))
-          
-          
-          
-          
+                  
           eps_MD = eps_ED
           
           call susceptibility(eps_ED, eps_MD, N, nshape, naxis, b, aspect, wv, zet_ED, zet_MD)
@@ -462,7 +454,7 @@
 !c----------- Creating matrix A --------------------------------- 
 !c  
 
-!__________________________________________electrix part
+!__________________________________________electric part
           
           a_ED = cz 
           G_tenzor = cz
@@ -746,11 +738,9 @@
       sum_a = rz
       sum_s = rz
      
-     
-
       do i=1,Na
       !ED+MD
-      sum_e = sum_e + aimag(rhs_ED_MD(i,1) * dconjg(E_field(i,1))) + aimag(rhs_ED_MD(Na + i -1,1)* dconjg(H_field(i,1)))
+      sum_e = sum_e + aimag(rhs_ED_MD(i,1) * dconjg(E_field(i,1))) + aimag(rhs_ED_MD(Na + i,1)* dconjg(H_field(i,1)))
       sum_a = sum_a + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))
       sum_s = sum_s + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))
       !!ED
@@ -758,7 +748,7 @@
       !sum_a = sum_a + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) 
       !sum_s = sum_s + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) 
       !!MD
-      !sum_e = sum_e + aimag(rhs_ED_MD(Na + i -1,1)* dconjg(H_field(i,1)))
+      !sum_e = sum_e + aimag(rhs_ED_MD(Na + i,1)* dconjg(H_field(i,1)))
       !sum_a = sum_a + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))
       !sum_s = sum_s + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))      
       end do

@@ -67,9 +67,7 @@ SUBROUTINE PERMITTIVITY_ED (mat,lambda,eps_ext,eps)
         close (unit=81)
         
         eps = (r1 + cu*r2)**2
-          
-          
-          
+                   
       end if
 !c------------------------GOLD----------------------------------------
       if (mat .eq. 2) then 
@@ -308,8 +306,7 @@ SUBROUTINE PERMITTIVITY_ED (mat,lambda,eps_ext,eps)
         
         eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
 	  end if
-      
-      
+!c------------------------FINAL NORMALIZATION--------------------------------------
       eps = eps / eps_ext
       
       RETURN

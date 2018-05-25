@@ -27,7 +27,7 @@
       real*8 aspect, b, dist, height, eps_ext, fill, a_eff
       real*8 li, omega_min, omega_max, wi, dw
       real*8 theta_pol_ED, phi_pol_ED, theta_pol_MD, phi_pol_MD, theta_prop, phi_prop
-      real*8 ru, rz, pi, twopi
+      real*8 ru, rz, pi, twopi, mu0
       real*8 wv, wv_0, wv_1, wv_2, wv_3
       real*8 xij, yij, zij, rij, rij_1, rij_2, rij_3, d_alpha_beta 
       real*8 rnijx, rnijy, rnijz, rnij_alpha, rnij_beta, rnij_alpha_beta
@@ -37,7 +37,9 @@
       real*8 time_begin, time_end
       real*8 da, d2a
       real*8 arg_inc, arg_ref
-      real*8 sum_e, sum_a, sum_s, qe, qa, qs, yabs, delta
+      real*8 sum_e_ED, sum_a_ED, sum_s_ED, qe_ED, qa_ED, qs_ED, yabs, delta
+      real*8 sum_e_MD, sum_a_MD, sum_s_MD, qe_MD, qa_MD, qs_MD
+      real*8 sum_e_ED_MD, sum_a_ED_MD, sum_s_ED_MD, qe_ED_MD, qa_ED_MD, qs_ED_MD
       
       complex*16 cu, cz, phase_fact, ref
       complex*16 eps_core, eps_shell, eps_sub, eps_ED, eps_MD
@@ -220,6 +222,7 @@
       ru = 1.0d0 
       pi = 4.0d0*datan(ru) 
       twopi = 2.0d0*pi
+      mu0 = 2.0d0*twopi * 1.0d-7
 !c
 !c-----------Calculating a_eff-----------------------
 !c
@@ -571,63 +574,27 @@
 !c-------- Costructing ED MD matrix A  -------------------------------- 
 !c
     a_ED_MD = cz
-    !left up part       diagonal elements
-    do i = 1, 3 * N
+    
+    do i = 1, 3 * N 
         do j = 1, 3 * N
-            if(i .eq. j)   a_ED_MD(i, j) = a_ED(i, j)
+            if(i .eq. j) a_ED_MD(i, j)          = a_ED(i, j)            !left up part       diagonal elements
+            if(i .eq. j) a_ED_MD(3*N+ i,3*N+ j) = a_MD(i, j)            !right down part    diagonal elements
+            
+            if(i .ne. j) a_ED_MD(i, j)          = G_tenzor(i, j)        !left up part       off diagonal elements
+            if(i .ne. j) a_ED_MD(3*N+ i,3*N+ j) = G_tenzor(i, j)        !right down part    off diagonal elements
+            if(i .ne. j) a_ED_MD(i,3*N+ j)      = - C_tenzor(i, j)      !left down part     off diagonal elements 
+            if(i .ne. j) a_ED_MD(3*N+ i,j)      = C_tenzor(i, j)        !right up part      off diagonal elements
         end do
+        
+        
     end do
     
-    !left up part        off diagonal elements
-    do i = 1, 3 * N
-        do j = 1, 3 * N
-           if(i .ne. j) a_ED_MD(i, j) = G_tenzor(i, j)
-        end do
-    end do
-    
-    !right down part        diagonal elements
-    do i = 1, 3 * N
-        do j = 1, 3 * N
-           if (i .eq. j) then 
-                if(i .eq. j) a_ED_MD(3*N+ i,3*N+ j) = a_MD(i, j)
-           end if
-        end do
-    end do
-    
-    !right down part         off diagonal elements
-    do i = 1, 3 * N
-        do j = 1, 3 * N
-           if (i .ne. j) then 
-                if(i .ne. j) a_ED_MD(3*N+ i,3*N+ j) = G_tenzor(i, j)
-           end if
-        end do
-    end do
-    
-    !left down part         off diagonal elements
-    do i = 1, 3 * N
-        do j = 1, 3 * N
-            if (i .ne. j) then 
-                if(i .ne. j) a_ED_MD(i,3*N+ j) = -1.0 *  C_tenzor(i, j)
-            end if
-        end do
-    end do
-    
-    !right up part          off diagonal elements
-    do i = 1, 3 * N
-        do j = 1, 3 * N
-            if (i .ne. j) then 
-                if(i .ne. j) a_ED_MD(3*N+ i,j) = C_tenzor(i, j)
-            end if
-        end do
-    end do
-    
-    
-    !print ED MD matrix
-        open(unit=71,file="matrix_a_ED_MD.txt",status='UNKNOWN')
-        do i = 1, 6 * N
-                write (71, '(100(g12.5,2x))') (a_ED_MD(i, j), j = 1 , 6 * N)
-        end do
-        close (unit=71)
+    !!print ED MD matrix
+    !    open(unit=71,file="matrix_a_ED_MD.txt",status='UNKNOWN')
+    !    do i = 1, 6 * N
+    !            write (71, '(100(g12.5,2x))') (a_ED_MD(i, j), j = 1 , 6 * N)
+    !    end do
+    !    close (unit=71)
 
         
 !c 
@@ -639,43 +606,35 @@
 !c 
 !c-------- Costructing right-hand side  -------------------------------- 
 !c  
-!_________________________________for electric part 
+
     E_field = cz
-  
-    if (excitation .eq. 1) then           !Plane wave
-        
-        do i=1,N
-            arg_inc = (1) * x(i) + prop(2) * y(i) + prop(3) * z(i)
-            E_field(3*i-2,1) = pol_elec(1) * cdexp(cu * wv_1 * arg_inc)
-            E_field(3*i-1,1) = pol_elec(2) * cdexp(cu * wv_1 * arg_inc)
-            E_field(3*i  ,1) = pol_elec(3) * cdexp(cu * wv_1 * arg_inc)
-        end do
-   
-    else                                  !Tip
-        E_field(1,1) = pol_elec(1)  
-        E_field(2,1) = pol_elec(2) 
-        E_field(3,1) = pol_elec(3)
-    END IF
-    
-!_________________________________for magnetic part 
     H_field = cz
   
     if (excitation .eq. 1) then           !Plane wave
         
         do i=1,N
+            !_________________________________for electric part 
+            arg_inc = (1) * x(i) + prop(2) * y(i) + prop(3) * z(i)
+            E_field(3*i-2,1) = pol_elec(1) * cdexp(cu * wv_1 * arg_inc)
+            E_field(3*i-1,1) = pol_elec(2) * cdexp(cu * wv_1 * arg_inc)
+            E_field(3*i  ,1) = pol_elec(3) * cdexp(cu * wv_1 * arg_inc)
+            !_________________________________for magnetic part 
             arg_inc = prop(1) * x(i) + prop(2) * y(i) + prop(3) * z(i)
             H_field(3*i-2,1) = pol_magn(1) * cdexp(cu * wv_1 * arg_inc)
             H_field(3*i-1,1) = pol_magn(2) * cdexp(cu * wv_1 * arg_inc)
             H_field(3*i  ,1) = pol_magn(3) * cdexp(cu * wv_1 * arg_inc)
-            
         end do
    
     else                                  !Tip
+        !_________________________________for electric part 
+        E_field(1,1) = pol_elec(1)  
+        E_field(2,1) = pol_elec(2) 
+        E_field(3,1) = pol_elec(3)
+        !_________________________________for magnetic part
         H_field(1,1) = pol_magn(1)  
         H_field(2,1) = pol_magn(2) 
         H_field(3,1) = pol_magn(3)
-        
-    END IF    
+    END IF
     
 
     do i = 1, Na
@@ -734,23 +693,31 @@
 !c 
 !c---------- Calculating spectrums------------------------------- 
 !c  
-      sum_e = rz
-      sum_a = rz
-      sum_s = rz
+      sum_e_ED_MD = rz
+      sum_a_ED_MD = rz
+      sum_s_ED_MD = rz
+      
+      sum_e_ED = rz
+      sum_a_ED = rz
+      sum_s_ED = rz
+      
+      sum_e_MD = rz
+      sum_a_MD = rz
+      sum_s_MD = rz
      
       do i=1,Na
       !ED+MD
-      sum_e = sum_e + aimag(rhs_ED_MD(i,1) * dconjg(E_field(i,1))) + aimag(rhs_ED_MD(Na + i,1)* dconjg(H_field(i,1)))
-      sum_a = sum_a + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))
-      sum_s = sum_s + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))
-      !!ED
-      !sum_e = sum_e + aimag(rhs_ED_MD(i,1) * dconjg(E_field(i,1))) 
-      !sum_a = sum_a + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) 
-      !sum_s = sum_s + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) 
-      !!MD
-      !sum_e = sum_e + aimag(rhs_ED_MD(Na + i,1)* dconjg(H_field(i,1)))
-      !sum_a = sum_a + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))
-      !sum_s = sum_s + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))      
+      sum_e_ED_MD = sum_e_ED_MD + aimag(rhs_ED_MD(i,1) * dconjg(E_field(i,1))) + mu0*aimag(rhs_ED_MD(Na + i,1)* dconjg(H_field(i,1)))
+      sum_a_ED_MD = sum_a_ED_MD + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))
+      sum_s_ED_MD = sum_s_ED_MD + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))
+      !ED
+      sum_e_ED = sum_e_ED + aimag(rhs_ED_MD(i,1) * dconjg(E_field(i,1))) 
+      sum_a_ED = sum_a_ED + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) 
+      sum_s_ED = sum_s_ED + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) 
+      !MD
+      sum_e_MD = sum_e_MD + mu0*aimag(rhs_ED_MD(Na + i,1)* dconjg(H_field(i,1)))
+      sum_a_MD = sum_a_MD + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))
+      sum_s_MD = sum_s_MD + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))      
       end do
       
       if (aspect .eq. 1) delta = -dimag((eps_ED + 2.*ru) / (eps_ext * b**3 * (eps_ED - ru)))
@@ -759,12 +726,24 @@
      
       !if (nshape .eq. 2 .and. aspect .ne. ru) delta = -dimag(aspect**2 * (eps_ED + 2.*ru) / (eps_ext * b**3 * (eps_ED - ru)))
       
-      qe = 4.*wv_1*sum_e/(float(N)*a_eff**2)
-      qa = 4.*wv_1*delta*sum_a/(float(N)*a_eff**2)
-      qs = qe - qa
+      qe_ED_MD = 4.*wv_1*sum_e_ED_MD/(float(N)*a_eff**2)
+      qa_ED_MD = 4.*wv_1*delta*sum_a_ED_MD/(float(N)*a_eff**2)
+      qs_ED_MD = qe_ED_MD - qa_ED_MD
       
-      write(70,*)  sngl(li), sngl(wi), sngl(qe), sngl(qa), sngl(qs)
+      qe_ED = 4.*wv_1*sum_e_ED/(float(N)*a_eff**2)
+      qa_ED = 4.*wv_1*delta*sum_a_ED/(float(N)*a_eff**2)
+      qs_ED = qe_ED - qa_ED
       
+      qe_MD = 4.*wv_1*sum_e_MD/(float(N)*a_eff**2)
+      qa_MD = 4.*wv_1*delta*sum_a_MD/(float(N)*a_eff**2)
+      qs_MD = qe_MD - qa_MD
+      
+      !ED_MD
+      write(70,*)  sngl(li), sngl(wi), sngl(qe_ED_MD), sngl(qa_ED_MD), sngl(qs_ED_MD)
+      !ED
+      !write(70,*)  sngl(li), sngl(wi), sngl(qe_ED), sngl(qa_ED), sngl(qs_ED)
+      !MD
+      !write(70,*)  sngl(li), sngl(wi), sngl(qe_MD), sngl(qa_MD), sngl(qs_MD)
 
 !c---------------------------------------------------------------------                  
 !c---------------------------------------------------------------------      

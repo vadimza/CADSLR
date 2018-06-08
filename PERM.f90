@@ -179,10 +179,40 @@ SUBROUTINE PERMITTIVITY_ED (mat,lambda,eps_ext,eps)
       eps = eps_0*ru - omega_p**2/(omega**2+cu*omega*g_inf) + f_1*omega_1**2 / (omega_1**2-omega**2-cu*omega*gamma_1)
      
       end if
-!c-----------------------------CUSTOM------------------------------------
+!c-----------------------------Si------------------------------------
       if (mat .eq. 8) then 
 
-      eps = (2.25,0.01)
+            open(unit=81, file='palik.silicon.dat', status='old')
+        
+        l_min = 10000.
+        l_max = 0.
+        read(81,*,end=17) l, r1, r2
+        if(l .lt. l_min) l_min = l
+        if(l .gt. l_max) l_max = l
+        i = 1
+        l_old = l
+        r1_old = r1
+        r2_old = r2
+
+16	continue
+	read(81,*,end=17) l, r1, r2
+        if(l .lt. l_min) l_min = l
+        if(l .gt. l_max) l_max = l
+	i = i + 1
+        if(l .eq. lambda) goto 17
+        if( (lambda-l_old)*(lambda-l) .le. 0.) then
+           r1 = r1_old + (lambda-l_old)*(r1-r1_old)/(l-l_old)
+           r2 = r2_old + (lambda-l_old)*(r2-r2_old)/(l-l_old)
+           goto 17
+        end if
+        l_old = l
+        r1_old = r1
+        r2_old = r2
+        goto 16
+17      continue
+        close (unit=81)
+        
+        eps = (r1 + cu*r2)!**2
       
       end if
       

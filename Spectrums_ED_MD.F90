@@ -189,7 +189,7 @@
       if (mat_core .eq. 5) core_name = 'AZO'
       if (mat_core .eq. 6) core_name = 'GZO'
       if (mat_core .eq. 7) core_name = 'ITO'
-      if (mat_core .eq. 8) core_name = 'CUS'
+      if (mat_core .eq. 8) core_name = 'SI'
             
       if (substrate .eq. 0) sub_name = 'free'
       if (substrate .eq. 1) sub_name = 'subs'
@@ -707,7 +707,7 @@
      
       do i=1,Na
       !ED+MD
-      sum_e_ED_MD = sum_e_ED_MD + aimag(rhs_ED_MD(i,1) * dconjg(E_field(i,1))) + mu0*aimag(rhs_ED_MD(Na + i,1)* dconjg(H_field(i,1)))
+      sum_e_ED_MD = sum_e_ED_MD + aimag(rhs_ED_MD(i,1) * dconjg(E_field(i,1))) + aimag(rhs_ED_MD(Na + i,1)* dconjg(H_field(i,1)))
       sum_a_ED_MD = sum_a_ED_MD + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))
       sum_s_ED_MD = sum_s_ED_MD + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))
       !ED
@@ -715,7 +715,7 @@
       sum_a_ED = sum_a_ED + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) 
       sum_s_ED = sum_s_ED + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) 
       !MD
-      sum_e_MD = sum_e_MD + mu0*aimag(rhs_ED_MD(Na + i,1)* dconjg(H_field(i,1)))
+      sum_e_MD = sum_e_MD + aimag(rhs_ED_MD(Na + i,1)* dconjg(H_field(i,1)))
       sum_a_MD = sum_a_MD + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))
       sum_s_MD = sum_s_MD + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))      
       end do
@@ -726,22 +726,22 @@
      
       !if (nshape .eq. 2 .and. aspect .ne. ru) delta = -dimag(aspect**2 * (eps_ED + 2.*ru) / (eps_ext * b**3 * (eps_ED - ru)))
       
-      qe_ED_MD = 4.*wv_1*sum_e_ED_MD/(float(N)*a_eff**2)
-      qa_ED_MD = 4.*wv_1*delta*sum_a_ED_MD/(float(N)*a_eff**2)
+      qe_ED_MD = 4.*wv_1*sum_e_ED_MD/(float(N)*a_eff**2.)
+      qa_ED_MD = 4.*wv_1*delta*sum_a_ED_MD/(float(N)*a_eff**2.)
       qs_ED_MD = qe_ED_MD - qa_ED_MD
       
-      qe_ED = 4.*wv_1*sum_e_ED/(float(N)*a_eff**2)
-      qa_ED = 4.*wv_1*delta*sum_a_ED/(float(N)*a_eff**2)
+      qe_ED = 4.*wv_1*sum_e_ED/(float(N)*a_eff**2.)
+      qa_ED = 4.*wv_1*delta*sum_a_ED/(float(N)*a_eff**2.)
       qs_ED = qe_ED - qa_ED
       
       qe_MD = 4.*wv_1*sum_e_MD/(float(N)*a_eff**2)
-      qa_MD = 4.*wv_1*delta*sum_a_MD/(float(N)*a_eff**2)
+      qa_MD = 4.*wv_1*delta*sum_a_MD/(float(N)*a_eff**2.)
       qs_MD = qe_MD - qa_MD
       
       !ED_MD
-      write(70,*)  sngl(li), sngl(wi), sngl(qe_ED_MD), sngl(qa_ED_MD), sngl(qs_ED_MD)
+      !write(70,*)  sngl(li), sngl(wi), sngl(qe_ED_MD), sngl(qa_ED_MD), sngl(qs_ED_MD)
       !ED
-      !write(70,*)  sngl(li), sngl(wi), sngl(qe_ED), sngl(qa_ED), sngl(qs_ED)
+      write(70,*)  sngl(li), sngl(wi), sngl(qe_ED), sngl(qa_ED), sngl(qs_ED)
       !MD
       !write(70,*)  sngl(li), sngl(wi), sngl(qe_MD), sngl(qa_MD), sngl(qs_MD)
 

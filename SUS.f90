@@ -81,10 +81,10 @@ SUBROUTINE SUSCEPTIBILITY (eps_ED, eps_MD, N, nshape, naxis, b, aspect, wv, zet_
     !END IF
     !------------------------------SPHERE------------------------------------
     IF (aspect .eq. ru) THEN
+        
 
-        !zet_ED = (eps + 2.*ru) / (eps - ru) / b**3 - wv_2 / b - 2. * cu * wv_3 / 3.
-      !ED polarizability
-        m = cdsqrt(eps_ED)
+      m = cdsqrt(eps_ED)
+      m = cdsqrt(eps_MD)
       psi_mkr_0 = cdsin(m*wv_1*b)/(m*wv_1*b) - cdcos(m*wv_1*b)
       psi_mkr_1 = cdcos(m*wv_1*b)/(m*wv_1*b) - cdsin(m*wv_1*b)/((m*wv_1*b)**2) + cdsin(m*wv_1*b)
      
@@ -94,24 +94,8 @@ SUBROUTINE SUSCEPTIBILITY (eps_ED, eps_MD, N, nshape, naxis, b, aspect, wv, zet_
       xi_kr_0 = psi_kr_0 - cu * (dcos(wv_1*b)/(wv_1*b) + dsin(wv_1*b))
       xi_kr_1 = psi_kr_1 + cu * (dsin(wv_1*b)/(wv_1*b) + dcos(wv_1*b)/((wv_1*b)**2) - dcos(wv_1*b))
       
-      zet_ED = - 2. * cu * wv_3 / 3. * (m*psi_mkr_0*xi_kr_1 - xi_kr_0*psi_mkr_1) / (m*psi_mkr_0*psi_kr_1 - psi_kr_0*psi_mkr_1)
-
-      
-
-      
-      
-      !MD polarizability      
-        m = cdsqrt(eps_MD)
-      psi_mkr_0 = cdsin(m*wv_1*b)/(m*wv_1*b) - cdcos(m*wv_1*b)
-      psi_mkr_1 = cdcos(m*wv_1*b)/(m*wv_1*b) - cdsin(m*wv_1*b)/((m*wv_1*b)**2) + cdsin(m*wv_1*b)
-     
-      psi_kr_0 = dsin(wv_1*b)/(wv_1*b) - dcos(wv_1*b)
-      psi_kr_1 = dcos(wv_1*b)/(wv_1*b) - dsin(wv_1*b)/((wv_1*b)**2.) + dsin(wv_1*b)
-     
-      xi_kr_0 = psi_kr_0 - cu * (dcos(wv_1*b)/(wv_1*b) + dsin(wv_1*b))
-      xi_kr_1 = psi_kr_1 + cu * (dsin(wv_1*b)/(wv_1*b) + dcos(wv_1*b)/((wv_1*b)**2) - dcos(wv_1*b))
-      
-      zet_MD = - 2. * cu * wv_3 / 3. * (psi_mkr_0*xi_kr_1 - m*xi_kr_0*psi_mkr_1) / (psi_mkr_0*psi_kr_1 - m*psi_kr_0*psi_mkr_1)
+      zet_ED = - 2. * cu * wv_3 / 3. * (m*psi_mkr_0*xi_kr_1 -   xi_kr_0*psi_mkr_1) / (m*psi_mkr_0*psi_kr_1 -   psi_kr_0*psi_mkr_1)
+      zet_MD = - 2. * cu * wv_3 / 3. * (  psi_mkr_0*xi_kr_1 - m*xi_kr_0*psi_mkr_1) / (  psi_mkr_0*psi_kr_1 - m*psi_kr_0*psi_mkr_1)
         
     END IF
       

@@ -27,7 +27,7 @@
       real*8 aspect, b, dist, height, eps_ext, fill, a_eff
       real*8 li, omega_min, omega_max, wi, dw
       real*8 theta_pol_ED, phi_pol_ED, theta_pol_MD, phi_pol_MD, theta_prop, phi_prop
-      real*8 ru, rz, pi, twopi, mu0, eps0, mueps, mueps_sq, epsmu_sq, lightspeed
+      real*8 ru, rz, pi, twopi, mu0, eps0, mueps, mueps_sq, epsmu_sq
       real*8 wv, wv_0, wv_1, wv_2, wv_3
       real*8 xij, yij, zij, rij, rij_1, rij_2, rij_3, d_alpha_beta 
       real*8 rnijx, rnijy, rnijz, rnij_alpha, rnij_beta, rnij_alpha_beta
@@ -67,47 +67,6 @@
       !take parameters from command line
       !copy of input file
       !__________________
-!#WORKING DIRECTORY
-!C:\git_repositories\CADSLR\results\
-!#TAB DIRECTORY
-!C:\git_repositories\CADSLR\results\
-!#SHORTER SEMIAXIS OR RADIUS [NM]	                                        !	IF ASPECT RATIO = 1, THEN THIS IS THE RADIUS OF A SPHERE
-!38.115	
-!#FILLING FACTOR					
-!1.
-!#TYPE OF STRUCTURE														!1 - CHAIN, 2 - SQUARE, 3 - CUT FIRST, 4 - CUT ROW, 5 - HEX
-!1
-!#NUMBER OF PARTICLES													! INTERPARTICLE DISTANCE IN CASE OF 1D CHAIN OR NUMBER OF PARTICLES IN ROW(COLUMN)
-!9	
-!#INTERPARTICLE DISTANCE
-!838	
-!#HEIGHT			                                                        ! 	DISTANCE BETWEEN CENTER OF PARTICLE AND SURFACE OF SUBSTRATE
-!0
-!#ASPECT RATIO			                                                !	0 < ASPECT RATIO <= 1; 1 - SPHERE
-!.5
-!#SPHEROID TYPE			                                                ! 	1 - PROLATE, 2 - OBLATE [ONLY IF ASPECT RATIO < 1]
-!1
-!#AXIS OF SYMMETRY		                                                ! 	1 - X, 2 - Y, 3 - Z	[ONLY IF ASPECT RATIO < 1]
-!2
-!#OMEGA_1 [rad/fs], OMEGA_2 [rad/fs], NUMBER OF POINTS					
-!.9	5.4	4501
-!#POL(E) THETA, PHI [DEG]	                                                ! 	ANGLE (POL^Z) & ANGLE (POL_PROJECTION^X)      {X [90;0], Y [90;90], Z [0;0]}
-!90	90	
-!#PROP(K) THETA, PHI [DEG]	                                                !	ANGLE (PROP^Z) & ANGLE (PROP_PROJECTION^X)    {X [90;0], Y [90;90], Z [0;0]}
-!0	0	
-!#EXCITATION TYPE			                                        !	0 - TIP / 1 - PLANE WAVE
-!1	
-!#CORE MATERIAL 			                                                !	1 - Ag / 2 - Au / 3 - TiN 800 / 4 - ZrN / 5 - AZO / 6 - GZO / 7 - ITO / 8 - CUSTOM
-!2
-!#SHELL MATERIAL			                                                !	1 - Ag / 2 - Au / 3 - TiN 800 / 4 - ZrN / 5 - AZO / 6 - GZO / 7 - ITO / 8 - CUSTOM
-!2
-!#MATERIAL OF SUBSTRATE		                                                !	1 - Ag / 2 - Au / 3 - TiN 800 / 4 - ZrN / 5 - AZO / 6 - GZO / 7 - ITO / 8 - CUSTOM
-!2
-!#EPSILON OF HOST MEDIUM		                                                !	1. - VACUUM / 1.78 - WATER
-!2.25
-!#SUBSTRATE 			                                                !	0-OFF / 1-ON
-!0
-!#END
       !sample for commande line argument
       !all parameters from input.txt one by one
       !C:\...\dipole_app.exe C:\...\ C:\...\ 38.115 1. 900 838 0 1. 1 2 0.9 5.4 4501 90 90 0 0 1 2 2 3 2.25 0
@@ -222,11 +181,10 @@
       ru = 1.0d0 
       pi = 4.0d0*datan(ru) 
       twopi = 2.0d0*pi
-      lightspeed = 299792458. * 10**9
-      mu0 = 2.0d0*twopi * 1.0d-7
-      eps0 =  1.0d7/ (2.0d0*twopi*lightspeed**2.)
+      mu0   = 4.0d0*pi * 1.0d-7
+      eps0  = 8.85d0   * 1.0d-12
       mueps = mu0 / eps0
-      mueps_sq = sqrt(mueps)
+      mueps_sq = sqrt(   mueps)
       epsmu_sq = sqrt(1./mueps)
 !c
 !c-----------Calculating a_eff-----------------------
@@ -240,11 +198,11 @@
 !c--------------------Converting degrees to radians---------------------
 !c
       theta_pol_ED = theta_pol_ED * pi / 180.
-      phi_pol_ED = phi_pol_ED * pi / 180.
+      phi_pol_ED   = phi_pol_ED   * pi / 180.
       theta_pol_MD = theta_pol_MD * pi / 180.
-      phi_pol_MD = phi_pol_MD * pi / 180.
-      theta_prop = theta_prop * pi / 180.
-      phi_prop = phi_prop * pi / 180.
+      phi_pol_MD   = phi_pol_MD   * pi / 180.
+      theta_prop   = theta_prop   * pi / 180.
+      phi_prop     = phi_prop     * pi / 180.
 !c      
 !c--------------------Checking for input errors-------------------------      
 !c
@@ -389,12 +347,10 @@
                 k = k +1
             end do 
         end do 
-      ENDIF
-    
+      ENDIF   
 !c      
 !c-----------------------Allocating workspace-----------------------------      
 !c      
-
        Na = 3*N
   
        allocate(E_field(1:Na,1:1), H_field(1:Na,1:1))
@@ -419,8 +375,7 @@
        pol_magn(2)  = prop(3)*pol_elec(1) - prop(1)*pol_elec(3)
        pol_magn(3)  = prop(1)*pol_elec(2) - prop(2)*pol_elec(1)
     
-      open(unit=70,file=out_spec, status='unknown')     
-      
+      open(unit=70,file=out_spec, status='unknown')          
 !c   
 !c----------------------------------------------------------------------- 
 !c---------------------START LOOP OVER OMEGA-----------------------------             
@@ -452,12 +407,7 @@
                   
           eps_MD = eps_ED
           
-          call susceptibility(eps_ED, eps_MD, N, nshape, naxis, b, aspect, wv, zet_ED, zet_MD)
-         
-          
-          !magn part
-          !effective magnetic permittivity of particle
-          
+          call susceptibility(eps_ED, eps_MD, N, nshape, naxis, b, aspect, wv, zet_ED, zet_MD)      
 !c
 !c----------- Creating matrix A --------------------------------- 
 !c  
@@ -508,7 +458,6 @@
               t3_g = wv_0 * (d_alpha_beta - 3.0*rnij_alpha_beta)/rij_3 
 
               G_tenzor(ja,ia) = (t1_g + cu*t2_g - t3_g)*phase_fact
-
               
 3         continue 
 2         continue
@@ -581,7 +530,9 @@
     a_ED_MD = cz
     
     do i = 1, 3 * N 
+        
         do j = 1, 3 * N
+            
             if(i .eq. j) a_ED_MD(i, j)          = a_ED(i, j)            !left up part       diagonal elements
             if(i .eq. j) a_ED_MD(3*N+ i,3*N+ j) = a_MD(i, j)            !right down part    diagonal elements
             
@@ -589,9 +540,9 @@
             if(i .ne. j) a_ED_MD(3*N+ i,3*N+ j) = G_tenzor(i, j)        !right down part    off diagonal elements
             if(i .ne. j) a_ED_MD(i,3*N+ j)      = -1.0 * mueps_sq * C_tenzor(i, j)      !left down part     off diagonal elements 
             if(i .ne. j) a_ED_MD(3*N+ i,j)      = epsmu_sq * C_tenzor(i, j)             !right up part      off diagonal elements
+        
         end do
-        
-        
+             
     end do
     
     !!print ED MD matrix
@@ -619,15 +570,15 @@
         
         do i=1,N
             !_________________________________for electric part 
-            arg_inc = (1) * x(i) + prop(2) * y(i) + prop(3) * z(i)
+            arg_inc = prop(1) * x(i) + prop(2) * y(i) + prop(3) * z(i)
             E_field(3*i-2,1) = pol_elec(1) * cdexp(cu * wv_1 * arg_inc)
             E_field(3*i-1,1) = pol_elec(2) * cdexp(cu * wv_1 * arg_inc)
             E_field(3*i  ,1) = pol_elec(3) * cdexp(cu * wv_1 * arg_inc)
             !_________________________________for magnetic part 
             arg_inc = prop(1) * x(i) + prop(2) * y(i) + prop(3) * z(i)
-            H_field(3*i-2,1) = pol_magn(1) * cdexp(cu * wv_1 * arg_inc)
-            H_field(3*i-1,1) = pol_magn(2) * cdexp(cu * wv_1 * arg_inc)
-            H_field(3*i  ,1) = pol_magn(3) * cdexp(cu * wv_1 * arg_inc)
+            H_field(3*i-2,1) = epsmu_sq * pol_magn(1) * cdexp(cu * wv_1 * arg_inc)
+            H_field(3*i-1,1) = epsmu_sq * pol_magn(2) * cdexp(cu * wv_1 * arg_inc)
+            H_field(3*i  ,1) = epsmu_sq * pol_magn(3) * cdexp(cu * wv_1 * arg_inc)
         end do
    
     else                                  !Tip
@@ -636,15 +587,15 @@
         E_field(2,1) = pol_elec(2) 
         E_field(3,1) = pol_elec(3)
         !_________________________________for magnetic part
-        H_field(1,1) = pol_magn(1)  
-        H_field(2,1) = pol_magn(2) 
-        H_field(3,1) = pol_magn(3)
+        H_field(1,1) = epsmu_sq * pol_magn(1)  
+        H_field(2,1) = epsmu_sq * pol_magn(2) 
+        H_field(3,1) = epsmu_sq * pol_magn(3)
     END IF
     
 
     do i = 1, Na
-    rhs_ED_MD(i,1)    = E_field(i,1)
-    rhs_ED_MD(Na+i,1) = H_field(i,1)
+        rhs_ED_MD(   i,1) = E_field(i,1)
+        rhs_ED_MD(Na+i,1) = H_field(i,1)
     end do 
     
 !c 
@@ -669,6 +620,7 @@
        
       deallocate(work) 
       deallocate(iwork)
+      
 !c 
 !c---------- Saving out dipole moments------------------------------- 
 !c  
@@ -744,7 +696,7 @@
       qs_MD = qe_MD - qa_MD
       
       !ED_MD
-      write(70,*)  sngl(li), sngl(wi), sngl(qe_ED_MD), sngl(qa_ED_MD), sngl(qs_ED_MD)
+      write(70,*)  sngl(li), sngl(wi), sngl(qe_ED_MD), sngl(qe_ED), sngl(qe_MD)
       !ED
       !write(70,*)  sngl(li), sngl(wi), sngl(qe_ED), sngl(qa_ED), sngl(qs_ED)
       !MD

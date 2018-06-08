@@ -212,7 +212,7 @@ SUBROUTINE PERMITTIVITY_ED (mat,lambda,eps_ext,eps)
 17      continue
         close (unit=81)
         
-        eps = (r1 + cu*r2)!**2
+        eps = (r1 + cu*r2)**2
       
       end if
       

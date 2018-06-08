@@ -27,7 +27,7 @@
       real*8 aspect, b, dist, height, eps_ext, fill, a_eff
       real*8 li, omega_min, omega_max, wi, dw
       real*8 theta_pol_ED, phi_pol_ED, theta_pol_MD, phi_pol_MD, theta_prop, phi_prop
-      real*8 ru, rz, pi, twopi, mu0
+      real*8 ru, rz, pi, twopi, mu0, eps0, mueps, mueps_sq, epsmu_sq, lightspeed
       real*8 wv, wv_0, wv_1, wv_2, wv_3
       real*8 xij, yij, zij, rij, rij_1, rij_2, rij_3, d_alpha_beta 
       real*8 rnijx, rnijy, rnijz, rnij_alpha, rnij_beta, rnij_alpha_beta
@@ -222,7 +222,12 @@
       ru = 1.0d0 
       pi = 4.0d0*datan(ru) 
       twopi = 2.0d0*pi
+      lightspeed = 299792458. * 10**9
       mu0 = 2.0d0*twopi * 1.0d-7
+      eps0 =  1.0d7/ (2.0d0*twopi*lightspeed**2.)
+      mueps = mu0 / eps0
+      mueps_sq = sqrt(mueps)
+      epsmu_sq = sqrt(1./mueps)
 !c
 !c-----------Calculating a_eff-----------------------
 !c
@@ -582,8 +587,8 @@
             
             if(i .ne. j) a_ED_MD(i, j)          = G_tenzor(i, j)        !left up part       off diagonal elements
             if(i .ne. j) a_ED_MD(3*N+ i,3*N+ j) = G_tenzor(i, j)        !right down part    off diagonal elements
-            if(i .ne. j) a_ED_MD(i,3*N+ j)      = - C_tenzor(i, j)      !left down part     off diagonal elements 
-            if(i .ne. j) a_ED_MD(3*N+ i,j)      = C_tenzor(i, j)        !right up part      off diagonal elements
+            if(i .ne. j) a_ED_MD(i,3*N+ j)      = -1.0 * mueps_sq * C_tenzor(i, j)      !left down part     off diagonal elements 
+            if(i .ne. j) a_ED_MD(3*N+ i,j)      = epsmu_sq * C_tenzor(i, j)             !right up part      off diagonal elements
         end do
         
         
@@ -707,7 +712,7 @@
      
       do i=1,Na
       !ED+MD
-      sum_e_ED_MD = sum_e_ED_MD + aimag(rhs_ED_MD(i,1) * dconjg(E_field(i,1))) + aimag(rhs_ED_MD(Na + i,1)* dconjg(H_field(i,1)))
+      sum_e_ED_MD = sum_e_ED_MD + aimag(rhs_ED_MD(i,1) * dconjg(E_field(i,1))) + mueps*aimag(rhs_ED_MD(Na + i,1)* dconjg(H_field(i,1)))
       sum_a_ED_MD = sum_a_ED_MD + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))
       sum_s_ED_MD = sum_s_ED_MD + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))
       !ED
@@ -715,7 +720,7 @@
       sum_a_ED = sum_a_ED + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) 
       sum_s_ED = sum_s_ED + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) 
       !MD
-      sum_e_MD = sum_e_MD + aimag(rhs_ED_MD(Na + i,1)* dconjg(H_field(i,1)))
+      sum_e_MD = sum_e_MD + mueps*aimag(rhs_ED_MD(Na + i,1)* dconjg(H_field(i,1)))
       sum_a_MD = sum_a_MD + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))
       sum_s_MD = sum_s_MD + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))      
       end do
@@ -739,9 +744,9 @@
       qs_MD = qe_MD - qa_MD
       
       !ED_MD
-      !write(70,*)  sngl(li), sngl(wi), sngl(qe_ED_MD), sngl(qa_ED_MD), sngl(qs_ED_MD)
+      write(70,*)  sngl(li), sngl(wi), sngl(qe_ED_MD), sngl(qa_ED_MD), sngl(qs_ED_MD)
       !ED
-      write(70,*)  sngl(li), sngl(wi), sngl(qe_ED), sngl(qa_ED), sngl(qs_ED)
+      !write(70,*)  sngl(li), sngl(wi), sngl(qe_ED), sngl(qa_ED), sngl(qs_ED)
       !MD
       !write(70,*)  sngl(li), sngl(wi), sngl(qe_MD), sngl(qa_MD), sngl(qs_MD)
 

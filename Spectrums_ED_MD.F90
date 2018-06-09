@@ -1,7 +1,6 @@
       program Spectrums
       USE IFLPORT
-      implicit none
-      
+      implicit none      
     
       character*300 dir_work, name_lambda, name_GR, name_dip, dir_tab
       character*100 N_name, b_name, dist_name, eps_name, pol_name 
@@ -9,8 +8,8 @@
       character*100 name_omega, core_name, theta_name, phi_name
      
       character*400 out_spec
-      character*100 CLARG !command line argument
-      character*15 TMPSTR, TMPSTR_FULL !temporary string
+      character*100 CLARG                                                           !command line argument
+      character*15 TMPSTR, TMPSTR_FULL                                              !temporary string
       
       logical exist_flag_work, result
       
@@ -42,22 +41,20 @@
       real*8 sum_e_ED_MD, sum_a_ED_MD, sum_s_ED_MD, qe_ED_MD, qa_ED_MD, qs_ED_MD
       
       complex*16 cu, cz, phase_fact, ref
-      complex*16 eps_core, eps_shell, eps_sub, eps_ED, eps_MD
+      complex*16 eps_core, eps_shell, eps_sub, eps
       complex*16 GRxx, GRyy, GRzz, GRxz, GRzx
       complex*16 dn0, cdx, cdy, cdz
       complex*16 sum_x, sum_y, sum_z
       
-      integer*4,    allocatable, dimension(:)   :: iwork
-      real*8,       allocatable, dimension(:)   :: x,y,z
-      complex*16,   allocatable, dimension(:)   :: work, zet_ED, zet_MD
-      complex*16,   allocatable, dimension(:,:) :: a, rhs
-      complex*16,   allocatable, dimension(:,:,:) :: GR
-      
-      complex*16,   allocatable, dimension(:,:) :: E_field, H_field, field_ED_MD
-      complex*16,   allocatable, dimension(:,:) :: a_ED, a_MD, a_ED_MD 
-      complex*16,   allocatable, dimension(:,:) :: rhs_ED_MD
-      complex*16,   allocatable, dimension(:,:) :: G_tenzor, C_tenzor
-
+      integer*4,    allocatable, dimension(:)     :: iwork
+      real*8,       allocatable, dimension(:)     :: x,y,z
+      complex*16,   allocatable, dimension(:)     :: work, zet_ED, zet_MD
+      complex*16,   allocatable, dimension(:,:)   :: a, rhs
+      complex*16,   allocatable, dimension(:,:,:) :: GR      
+      complex*16,   allocatable, dimension(:,:)   :: E_field, H_field, field_ED_MD
+      complex*16,   allocatable, dimension(:,:)   :: a_ED, a_MD, a_ED_MD 
+      complex*16,   allocatable, dimension(:,:)   :: rhs_ED_MD
+      complex*16,   allocatable, dimension(:,:)   :: G_tenzor, C_tenzor
 !c 
 !c------------------ Reading parameters from 'inp.par' file ------------------------ 
 !c  
@@ -102,7 +99,6 @@
       end do
       
 10    close(70)
-
 !c
 !c----------------------Creating output file-----------------------
 !c            
@@ -173,7 +169,7 @@
       i_dir_work = len_trim(dir_work)
       i_dir_tab  = len_trim(dir_tab)
 !c 
-!c--------- Mathematical constants -------------------------- 
+!c--------- Constants -------------------------- 
 !c 
       cz = (0.0d0,0.0d0) 
       cu = (0.0d0,1.0d0) 
@@ -212,16 +208,9 @@
       
       inquire(DIRECTORY=dir_work, EXIST=exist_flag_work)
       if(.not. exist_flag_work) goto 206
-      
 !c 
-!c------------------- Writing coordinates for single chain--------------- 
+!c------------------- Writing coordinates --------------- 
 !c   
-      write (*,*) '--------------------------------------------------'
-      write (*,*) '2D lattice, NxN=', N,'x',N
-      write (*,*) 'b=', sngl(b)
-      write (*,*) 'period=', sngl(dist)
-      write (*,*) '--------------------------------------------------'
-     
 !c 
 !c------------------- for single chain---------------       
 !c      
@@ -238,7 +227,6 @@
           !end do
         end do      
       ENDIF
-      
 !c
 !c----------------------full lattice------------------------------
 !c         0 0 0 0 0
@@ -348,6 +336,13 @@
             end do 
         end do 
       ENDIF   
+      
+      write (*,*) '--------------------------------------------------'
+      write (*,*) '2D lattice, NxN=', N
+      write (*,*) 'b=', sngl(b)
+      write (*,*) 'period=', sngl(dist)
+      write (*,*) '--------------------------------------------------'
+      pause
 !c      
 !c-----------------------Allocating workspace-----------------------------      
 !c      
@@ -361,7 +356,6 @@
        allocate(rhs_ED_MD(1:2*Na,1:1))
        allocate(a_ED(1:Na,1:Na), a_MD(1:Na,1:Na))
        allocate(G_tenzor(1:Na,1:Na), C_tenzor(1:Na,1:Na))
-       
        
        prop(1) = dsin(theta_prop)*dcos(phi_prop) 
        prop(2) = dsin(theta_prop)*dsin(phi_prop)
@@ -400,14 +394,12 @@
           wv_2 = wv*wv 
           wv_3 = wv_2*wv 
        
-          call permittivity_ED (mat_shell,li,eps_ext,eps_shell)
-          call permittivity_ED (mat_core, li,eps_ext,eps_core)
+          call permittivity (mat_shell,li,eps_ext,eps_shell)
+          call permittivity (mat_core, li,eps_ext,eps_core)
       
-          eps_ED = eps_shell * (eps_core + 2.*eps_shell + 2.*fill*(eps_core-eps_shell))/ (eps_core + 2.*eps_shell - fill*(eps_core-eps_shell))
-                  
-          eps_MD = eps_ED
+          eps = eps_shell * (eps_core + 2.*eps_shell + 2.*fill*(eps_core-eps_shell))/ (eps_core + 2.*eps_shell - fill*(eps_core-eps_shell))        
           
-          call susceptibility(eps_ED, eps_MD, N, nshape, naxis, b, aspect, wv, zet_ED, zet_MD)      
+          call susceptibility(eps, N, nshape, naxis, b, aspect, wv, zet_ED, zet_MD)      
 !c
 !c----------- Creating matrix A --------------------------------- 
 !c  
@@ -485,8 +477,7 @@
 21        continue
  
 1     continue 
-        
-      
+          
       do 4, i=2,Na 
           do 4, j=1,i-1 
               G_tenzor(j, i) = G_tenzor(i, j)
@@ -501,11 +492,10 @@
                   
               else                      !for off diagonal elements G_ED matrix
                   G_tenzor(j,i) = -1.0 * G_tenzor(j,i)
-                  
+                  !C_tenzor(j,i) = -1.0 * C_tenzor(j,i) !probably you should do it
               end if
 5     continue
- 
-      
+       
         ! !print C_tenzor
         !open(unit=71,file="C_tenzor.txt",status='UNKNOWN')
         !do i = 1, 3 * N
@@ -520,10 +510,7 @@
         !        write (71, '(100(g12.5,2x))') (G_tenzor(i, j), j = 1 , 3 * N)
         !        write (71, "")
         !end do
-        !close (unit=71) 
-      
-      
-   
+        !close (unit=71)
 !c 
 !c-------- Costructing ED MD matrix A  -------------------------------- 
 !c
@@ -533,13 +520,13 @@
         
         do j = 1, 3 * N
             
-            if(i .eq. j) a_ED_MD(i, j)          = a_ED(i, j)            !left up part       diagonal elements
-            if(i .eq. j) a_ED_MD(3*N+ i,3*N+ j) = a_MD(i, j)            !right down part    diagonal elements
+            if(i .eq. j) a_ED_MD(    i,     j) =  a_ED(i, j)                        !left up part           diagonal elements
+            if(i .eq. j) a_ED_MD(3*N+i, 3*N+j) =  a_MD(i, j)                        !right down part        diagonal elements
             
-            if(i .ne. j) a_ED_MD(i, j)          = G_tenzor(i, j)        !left up part       off diagonal elements
-            if(i .ne. j) a_ED_MD(3*N+ i,3*N+ j) = G_tenzor(i, j)        !right down part    off diagonal elements
-            if(i .ne. j) a_ED_MD(i,3*N+ j)      = -1.0 * mueps_sq * C_tenzor(i, j)      !left down part     off diagonal elements 
-            if(i .ne. j) a_ED_MD(3*N+ i,j)      = epsmu_sq * C_tenzor(i, j)             !right up part      off diagonal elements
+            if(i .ne. j) a_ED_MD(    i,     j) =  G_tenzor(i, j)                    !left up part       off diagonal elements
+            if(i .ne. j) a_ED_MD(3*N+i, 3*N+j) =  G_tenzor(i, j)                    !right down part    off diagonal elements
+            if(i .ne. j) a_ED_MD(    i, 3*N+j) = -1.0 * epsmu_sq * C_tenzor(i, j)   !left down part     off diagonal elements 
+            if(i .ne. j) a_ED_MD(3*N+i,     j) =  mueps_sq* C_tenzor(i, j)   !right up part      off diagonal elements
         
         end do
              
@@ -550,15 +537,11 @@
     !    do i = 1, 6 * N
     !            write (71, '(100(g12.5,2x))') (a_ED_MD(i, j), j = 1 , 6 * N)
     !    end do
-    !    close (unit=71)
-
-        
+    !    close (unit=71)     
 !c 
 !c-------- End of costructing ED MD matrix A  -------------------------------- 
-!c        
+!c
     
-
-        
 !c 
 !c-------- Costructing right-hand side  -------------------------------- 
 !c  
@@ -569,29 +552,29 @@
     if (excitation .eq. 1) then           !Plane wave
         
         do i=1,N
+            arg_inc = prop(1) * x(i) + prop(2) * y(i) + prop(3) * z(i)
             !_________________________________for electric part 
-            arg_inc = prop(1) * x(i) + prop(2) * y(i) + prop(3) * z(i)
-            E_field(3*i-2,1) = pol_elec(1) * cdexp(cu * wv_1 * arg_inc)
-            E_field(3*i-1,1) = pol_elec(2) * cdexp(cu * wv_1 * arg_inc)
-            E_field(3*i  ,1) = pol_elec(3) * cdexp(cu * wv_1 * arg_inc)
+            E_field(3*i-2,1) =            pol_elec(1) * cdexp(cu * wv_1 * arg_inc)
+            E_field(3*i-1,1) =            pol_elec(2) * cdexp(cu * wv_1 * arg_inc)
+            E_field(3*i  ,1) =            pol_elec(3) * cdexp(cu * wv_1 * arg_inc)
             !_________________________________for magnetic part 
-            arg_inc = prop(1) * x(i) + prop(2) * y(i) + prop(3) * z(i)
             H_field(3*i-2,1) = epsmu_sq * pol_magn(1) * cdexp(cu * wv_1 * arg_inc)
             H_field(3*i-1,1) = epsmu_sq * pol_magn(2) * cdexp(cu * wv_1 * arg_inc)
             H_field(3*i  ,1) = epsmu_sq * pol_magn(3) * cdexp(cu * wv_1 * arg_inc)
         end do
    
     else                                  !Tip
+        
         !_________________________________for electric part 
-        E_field(1,1) = pol_elec(1)  
-        E_field(2,1) = pol_elec(2) 
-        E_field(3,1) = pol_elec(3)
+        E_field(1,1) =            pol_elec(1)  
+        E_field(2,1) =            pol_elec(2) 
+        E_field(3,1) =            pol_elec(3)
         !_________________________________for magnetic part
         H_field(1,1) = epsmu_sq * pol_magn(1)  
         H_field(2,1) = epsmu_sq * pol_magn(2) 
         H_field(3,1) = epsmu_sq * pol_magn(3)
-    END IF
-    
+        
+    END IF    
 
     do i = 1, Na
         rhs_ED_MD(   i,1) = E_field(i,1)
@@ -620,33 +603,6 @@
        
       deallocate(work) 
       deallocate(iwork)
-      
-!c 
-!c---------- Saving out dipole moments------------------------------- 
-!c  
- !     write(name_dip, 122) dir_work, name_omega 
- !122  format(a<i_dir_work>,'\','dip_', a<i_omega_name>, 'nm.dat') 
- !     
- !     open(unit=20, file=name_dip, status='unknown', err=211)
- !     
- !     dn0 = rhs(1,1)*dconjg(rhs(1,1))+rhs(2,1)*dconjg(rhs(2,1)) + rhs(3,1)*dconjg(rhs(3,1))
- !     
- !     do 8, i=1,N 
- !     cdx = rhs(3*i-2,1)*dconjg(rhs(3*i-2,1))
- !     cdy = rhs(3*i-1,1)*dconjg(rhs(3*i-1,1))
- !     cdz = rhs(3*i  ,1)*dconjg(rhs(3*i  ,1))
- !     d2a = cdx + cdy + cdz
- !     d2a = d2a / dn0
- !     cdx = cdx / dn0
- !     cdy = cdy / dn0
- !     cdz = cdz / dn0
- !     write(20,*)  i, sngl(d2a), sngl(cdabs(cdx)),   sngl(cdabs(cdy)), sngl(cdabs(cdz))
- !
- !8    continue 
- !
- !     close(20)
- !
- !     write(70,*)  sngl(li), sngl(d2a)!, 10d0*dlog10(d2a)
 !c 
 !c---------- Calculating spectrums------------------------------- 
 !c  
@@ -664,43 +620,25 @@
      
       do i=1,Na
       !ED+MD
-      sum_e_ED_MD = sum_e_ED_MD + aimag(rhs_ED_MD(i,1) * dconjg(E_field(i,1))) + mueps*aimag(rhs_ED_MD(Na + i,1)* dconjg(H_field(i,1)))
-      sum_a_ED_MD = sum_a_ED_MD + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))
-      sum_s_ED_MD = sum_s_ED_MD + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))
+      sum_e_ED_MD = sum_e_ED_MD + aimag(rhs_ED_MD(i,1)*dconjg(E_field(i,1))) + mueps*aimag(rhs_ED_MD(Na+i,1)*dconjg(H_field(i,1)))
       !ED
       sum_e_ED = sum_e_ED + aimag(rhs_ED_MD(i,1) * dconjg(E_field(i,1))) 
-      sum_a_ED = sum_a_ED + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) 
-      sum_s_ED = sum_s_ED + rhs_ED_MD(i,1) * dconjg(rhs_ED_MD(i,1)) 
       !MD
-      sum_e_MD = sum_e_MD + mueps*aimag(rhs_ED_MD(Na + i,1)* dconjg(H_field(i,1)))
-      sum_a_MD = sum_a_MD + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))
-      sum_s_MD = sum_s_MD + rhs_ED_MD(Na + i,1) * dconjg(rhs_ED_MD(Na + i,1))      
-      end do
-      
-      if (aspect .eq. 1) delta = -dimag((eps_ED + 2.*ru) / (eps_ext * b**3 * (eps_ED - ru)))
+      sum_e_MD = sum_e_MD + mueps*aimag(rhs_ED_MD(Na+i,1)*dconjg(H_field(i,1)))
+      end do      
      
       !if (nshape .eq. 1 .and. aspect .ne. ru) delta = -dimag(aspect * (eps_ED + 2.*ru) / (eps_ext * b**3 * (eps_ED - ru)))
      
       !if (nshape .eq. 2 .and. aspect .ne. ru) delta = -dimag(aspect**2 * (eps_ED + 2.*ru) / (eps_ext * b**3 * (eps_ED - ru)))
       
       qe_ED_MD = 4.*wv_1*sum_e_ED_MD/(float(N)*a_eff**2.)
-      qa_ED_MD = 4.*wv_1*delta*sum_a_ED_MD/(float(N)*a_eff**2.)
-      qs_ED_MD = qe_ED_MD - qa_ED_MD
       
       qe_ED = 4.*wv_1*sum_e_ED/(float(N)*a_eff**2.)
-      qa_ED = 4.*wv_1*delta*sum_a_ED/(float(N)*a_eff**2.)
-      qs_ED = qe_ED - qa_ED
       
       qe_MD = 4.*wv_1*sum_e_MD/(float(N)*a_eff**2)
-      qa_MD = 4.*wv_1*delta*sum_a_MD/(float(N)*a_eff**2.)
-      qs_MD = qe_MD - qa_MD
       
       !ED_MD
       write(70,*)  sngl(li), sngl(wi), sngl(qe_ED_MD), sngl(qe_ED), sngl(qe_MD)
-      !ED
-      !write(70,*)  sngl(li), sngl(wi), sngl(qe_ED), sngl(qa_ED), sngl(qs_ED)
-      !MD
-      !write(70,*)  sngl(li), sngl(wi), sngl(qe_MD), sngl(qa_MD), sngl(qs_MD)
 
 !c---------------------------------------------------------------------                  
 !c---------------------------------------------------------------------      

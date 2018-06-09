@@ -1,4 +1,4 @@
-SUBROUTINE PERMITTIVITY_ED (mat,lambda,eps_ext,eps) 
+SUBROUTINE PERMITTIVITY (mat,lambda,eps_ext,eps) 
 
       implicit none
       integer*4, intent(in) :: mat

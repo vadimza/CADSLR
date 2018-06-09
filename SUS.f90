@@ -1,4 +1,4 @@
-SUBROUTINE SUSCEPTIBILITY (eps_ED, eps_MD, N, nshape, naxis, b, aspect, wv, zet_ED, zet_MD) 
+SUBROUTINE SUSCEPTIBILITY (eps, N, nshape, naxis, b, aspect, wv, zet_ED, zet_MD) 
 !
 !   CALCULATION OF THE RECIPROCAL POLARIZABILITY ZET FOR PARTICLES OF SPHERICAL
 !   AND SPHEROIDAL SHAPES. NOTE THAT THE INPUT REQUIRES NORMALIZED EPSILON WITH
@@ -10,10 +10,8 @@ SUBROUTINE SUSCEPTIBILITY (eps_ED, eps_MD, N, nshape, naxis, b, aspect, wv, zet_
     implicit none
     integer*4, intent(in) :: N, nshape, naxis 
     real*8,    intent(in) :: aspect, b, wv
-    complex*16,intent(in) :: eps_ED
-    complex*16,intent(in) :: eps_MD
-    complex*16,intent(out) :: zet_ED(3*N)
-    complex*16,intent(out) :: zet_MD(3*N)
+    complex*16,intent(in) :: eps
+    complex*16,intent(out) :: zet_ED(3*N), zet_MD(3*N)
     integer*4 i
     complex*16 cu
     complex :: m
@@ -82,9 +80,7 @@ SUBROUTINE SUSCEPTIBILITY (eps_ED, eps_MD, N, nshape, naxis, b, aspect, wv, zet_
     !------------------------------SPHERE------------------------------------
     IF (aspect .eq. ru) THEN
         
-
-      m = cdsqrt(eps_ED)
-      m = cdsqrt(eps_MD)
+      m = cdsqrt(eps)
       psi_mkr_0 = cdsin(m*wv_1*b)/(m*wv_1*b) - cdcos(m*wv_1*b)
       psi_mkr_1 = cdcos(m*wv_1*b)/(m*wv_1*b) - cdsin(m*wv_1*b)/((m*wv_1*b)**2) + cdsin(m*wv_1*b)
      

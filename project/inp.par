@@ -7,11 +7,11 @@ C:\Users\Ilia\Google_Drive\FORTRAN\CADSLR\simulations\
 #FILLING FACTOR					
 1.
 #STRUCTURE
-1
+2
 #NUMBER OF PARTICLES
-1
+21
 #INTERPARTICLE DISTANCE
-838	
+300
 #HEIGHT			                                                        ! 	DISTANCE BETWEEN CENTER OF PARTICLE AND SURFACE OF SUBSTRATE
 0
 #ASPECT RATIO			                                                !	0 < ASPECT RATIO <= 1; 1 - SPHERE

@@ -55,6 +55,18 @@
       complex*16,   allocatable, dimension(:,:)   :: a_ED, a_MD, a_ED_MD 
       complex*16,   allocatable, dimension(:,:)   :: rhs_ED_MD
       complex*16,   allocatable, dimension(:,:)   :: G_tenzor, C_tenzor
+      
+    
+        interface
+            subroutine tekecoordinates (types, dist, height, x, y, z, N, Nline)    
+                real*8,       allocatable, dimension(:) :: x, y, z
+                integer*4 types, Nline, N
+                real*8 dist, height
+            end subroutine tekecoordinates
+        end interface
+      
+      
+      
 !c 
 !c------------------ Reading parameters from 'inp.par' file ------------------------ 
 !c  
@@ -210,23 +222,18 @@
       if(.not. exist_flag_work) goto 206
 !c 
 !c------------------- Writing coordinates --------------- 
-!c   
+!c 
+      
+      
 !c 
 !c------------------- for single chain---------------       
 !c      
       IF (types .eq. 1) THEN
-      allocate(x(1:N),y(1:N),z(1:N))
-      
-      Nline = int(real(N))
-      
-      do j = 1, Nline
-          !do i = 1, Nline 
-              x(j) = (j-1) * dist 
-              y(j ) = rz!(j-1) * dist
-              z(j ) = height
-          !end do
-        end do      
+         Nline = N
+         allocate(x(1:N),y(1:N),z(1:N))
       ENDIF
+
+      
 !c
 !c----------------------full lattice------------------------------
 !c         0 0 0 0 0
@@ -240,15 +247,10 @@
           Nline = N
           N = N**2.
           allocate(x(1:N),y(1:N),z(1:N)) 
-          
-          do j = 1, Nline
-              do i = 1, Nline 
-                  x(i + Nline*(j-1)) = (i-1) * dist 
-                  y(i + Nline*(j-1)) = (j-1) * dist
-                  z(i + Nline*(j-1)) = height
-              end do
-          end do
       ENDIF
+      
+      
+      
 !c
 !c----------------------cut lattice------------------------------
 !c         0 0 0 0 0
@@ -259,28 +261,13 @@
 !c-----------------------------------------------------------------
 !c
       IF (types .eq. 3) THEN
+          Nline = N
           N = N**2 - ((N-1)/2)**2
           allocate(x(1:N),y(1:N),z(1:N))
-          k = 1
-          
-          do j = 1, N, 2
-              do i = 1, N
-                  x(k) = (i-1) * dist 
-                  y(k) = (j-1) * dist
-                  z(k) = height
-                  k = k + 1
-              end do
-          end do
-
-          do j = 2, N-1, 2
-              do i = 1, N, 2 
-                  x(k) = (i-1) * dist 
-                  y(k) = (j-1) * dist
-                  z(k) = height
-                  k = k + 1
-              end do
-          end do
       ENDIF
+      
+      
+      
 !c
 !c----------------------cut lattice------------------------------
 !c         0   0   0
@@ -291,19 +278,13 @@
 !c-----------------------------------------------------------------
 !c
       IF (types .eq. 4) THEN
+          Nline = N
           N = (N**2 + N)/2
           allocate(x(1:N),y(1:N),z(1:N))
-          k = 1
-          
-          do j = 1, N, 2
-              do i = 1, N
-                  x(k) = (i-1) * dist 
-                  y(k) = (j-1) * dist
-                  z(k) = height
-                  k = k + 1
-              end do
-          end do
       ENDIF
+      
+      
+      
 !c
 !c----------------------hex------------------------------
 !c           0 0 0 0 0
@@ -314,28 +295,17 @@
 !c-----------------------------------------------------------------
 !c
       IF (types .eq. 5) THEN
-        N = N**2 
-        allocate(x(1:N),y(1:N),z(1:N)) 
-        k =1
-        
-        do i = 1, N, 2 
-            do j = 1, N 
-                x(k) = (j-1) * dist
-                y(k) = (i-1) * 0.5 * dist * 3**0.5
-                z(k) = height 
-                k = k + 1
-            end do 
-        end do 
-
-        do i = 2, N-1, 2 
-            do j = 1, N 
-                x(k) = (j-1) * dist + 0.5 * dist 
-                y(k) = (i-1) * 0.5 * dist * 3**0.5 
-                z(k) = height
-                k = k +1
-            end do 
-        end do 
-      ENDIF   
+          Nline = N
+          N = N**2 
+          allocate(x(1:N),y(1:N),z(1:N)) 
+      ENDIF  
+      
+      x = 0.
+      y = 0.
+      z = 0.
+      
+      call tekecoordinates(types, dist, height, x, y, z, N, Nline)
+      
       
       write (*,*) '--------------------------------------------------'
       write (*,*) '2D lattice, NxN=', N

@@ -1,10 +1,10 @@
-      program Spectrums
+      PROGRAM SPECTRUMS_ED_MD
       USE IFLPORT
       implicit none      
     
-      character*300 dir_work, name_lambda, name_GR, name_dip, dir_tab
+      character*300 dir_work, name_lambda, name_GR, name_dip
       character*100 N_name, b_name, dist_name, eps_name, pol_name 
-      character*100 aspect_name, height_name, prop_name, particle_name, sub_name
+      character*100 aspect_name, prop_name, particle_name
       character*100 name_omega, core_name, theta_name, phi_name
      
       character*400 out_spec
@@ -14,17 +14,17 @@
       logical exist_flag_work, result
       
       integer*4 N, Na, Nline, i, j, k, alpha, beta, nl, il, ia, ja
-      integer*4 nshape, naxis, nw, iw, excitation
-      integer*4 substrate, mat_core_1, mat_core_2, mat_shell_1, mat_shell_2, mat_sub
+      integer*4 nshape, naxis, nw, excitation
+      integer*4 mat_core_1, mat_core_2, mat_shell_1, mat_shell_2
       integer*4 lwork, liwork, info, istat
       integer*4 i_N_name, i_b_name, i_dist_name, i_eps_name
-      integer*4 i_aspect_name, i_height_name, i_omega_name, i_core_name
-      integer*4 i_dir_work, i_dir_tab
+      integer*4 i_aspect_name, i_omega_name, i_core_name
+      integer*4 i_dir_work
       integer*4 types
       integer :: output_data
       
-      real*8 aspect, b, dist, height, eps_ext, fill, a_eff
-      real*8 li, omega_min, omega_max, wi, dw
+      real*8 aspect, b1, b2, dist, eps_ext, fill, a_eff
+      real*8 li, l_min, l_max, dl
       real*8 theta_pol_ED, phi_pol_ED, theta_pol_MD, phi_pol_MD, theta_prop, phi_prop
       real*8 ru, rz, pi, twopi, mu0, eps0, mueps, mueps_sq, epsmu_sq
       real*8 wv, wv_0, wv_1, wv_2, wv_3
@@ -41,7 +41,7 @@
       real*8 sum_e_ED_MD, sum_a_ED_MD, sum_s_ED_MD, qe_ED_MD, qa_ED_MD, qs_ED_MD
       
       complex*16 cu, cz, phase_fact, ref
-      complex*16 eps_core_1,eps_core_2, eps_shell_1, eps_shell_2, eps_sub, eps_1, eps_2
+      complex*16 eps_core_1,eps_core_2, eps_shell_1, eps_shell_2, eps_1, eps_2
       complex*16 GRxx, GRyy, GRzz, GRxz, GRzx
       complex*16 dn0, cdx, cdy, cdz
       complex*16 sum_x, sum_y, sum_z
@@ -57,14 +57,13 @@
       complex*16,   allocatable, dimension(:,:)   :: rhs_ED_MD
       complex*16,   allocatable, dimension(:,:)   :: G_tenzor, C_tenzor
       
-        interface
-            subroutine coordinates (types, dist, height, x, y, z, N, Nline)    
-                real*8,       allocatable, dimension(:) :: x, y, z
-                integer*4 types, Nline, N
-                real*8 dist, height
-            end subroutine coordinates
-        end interface
-       
+      interface
+          subroutine coordinates (types, dist, x, y, z, N, Nline)    
+              real*8,       allocatable, dimension(:) :: x, y, z
+              integer*4 types, Nline, N
+              real*8 dist
+          end subroutine coordinates
+      end interface
 !c 
 !c------------------ Reading parameters from 'inp.par' file ------------------------ 
 !c  
@@ -86,25 +85,21 @@
         if (TMPSTR_FULL(1:4) .eq. "#END" ) goto 10
 
         if (TMPSTR_FULL(2:8) .eq. "WORKING") read(70,*)         dir_work
-        if (TMPSTR_FULL(2:4) .eq. "TAB") read(70,*)             dir_tab  
-        if (TMPSTR_FULL(2:8) .eq. "SHORTER") read(70,*)         b
+        if (TMPSTR_FULL(2:8) .eq. "SHORTER") read(70,*)         b1, b2
         if (TMPSTR_FULL(2:8) .eq. "FILLING") read(70,*)         fill
         if (TMPSTR_FULL(2:10).eq. "STRUCTURE") read(70,*)       types
         if (TMPSTR_FULL(2:7) .eq. "NUMBER") read(70,*)          N
         if (TMPSTR_FULL(2:14).eq. "INTERPARTICLE") read(70,*)   dist
-        if (TMPSTR_FULL(2:7) .eq. "HEIGHT") read(70,*)          height
         if (TMPSTR_FULL(2:7) .eq. "ASPECT") read(70,*)          aspect
         if (TMPSTR_FULL(2:9) .eq. "SPHEROID") read(70,*)        nshape
         if (TMPSTR_FULL(2:5) .eq. "AXIS") read(70,*)            naxis
-        if (TMPSTR_FULL(2:8) .eq. "OMEGA_1") read(70,*)         omega_min,  omega_max,  nw
+        if (TMPSTR_FULL(2:9) .eq. "LAMBDA_1") read(70,*)        l_min, l_max, nl
         if (TMPSTR_FULL(2:7) .eq. "POL(E)") read(70,*)          theta_pol_ED,  phi_pol_ED
         if (TMPSTR_FULL(2:8) .eq. "PROP(K)") read(70,*)         theta_prop, phi_prop
         if (TMPSTR_FULL(2:11).eq. "EXCITATION") read(70,*)      excitation
         if (TMPSTR_FULL(2:5) .eq. "CORE")  read(70,*)           mat_core_1, mat_core_2
         if (TMPSTR_FULL(2:6) .eq. "SHELL") read(70,*)           mat_shell_1, mat_shell_2
-        if (TMPSTR_FULL(2:9) .eq. "MATERIAL") read(70,*)        mat_sub
         if (TMPSTR_FULL(2:8) .eq. "EPSILON") read(70,*)         eps_ext
-        if (TMPSTR_FULL(2:10).eq. "SUBSTRATE") read(70,*)       substrate
         !if (TMPSTR_FULL(2:5) .eq. "TYPE") read(70,*)            output_data
       end do
       
@@ -114,10 +109,8 @@
 !c            
       write (N_name, '(I4)') N 
       N_name = trim(adjustl(N_name))
-      write (b_name, '(I4)') int(b) 
+      write (b_name, '(I4)') int(b1) 
       b_name = trim(adjustl(b_name)) 
-      write (height_name, '(I4)') int(height) 
-      height_name = trim(adjustl(height_name))
       write (dist_name, '(I4)') int(dist) 
       dist_name = trim(adjustl(dist_name))
       write (eps_name, '(I4)') int(eps_ext*100) 
@@ -156,28 +149,23 @@
       if (mat_core_1 .eq. 7) core_name = 'ITO'
       if (mat_core_1 .eq. 8) core_name = 'SI'
             
-      if (substrate .eq. 0) sub_name = 'free'
-      if (substrate .eq. 1) sub_name = 'subs'
-            
       i_N_name = len_trim(N_name)
       i_b_name = len_trim(b_name)             
-      i_dist_name = len_trim(dist_name) 
-      i_height_name = len_trim(height_name)
+      i_dist_name = len_trim(dist_name)
       i_aspect_name = len_trim(aspect_name)
       i_eps_name = len_trim(eps_name)
       i_dir_work = len_trim(dir_work)
       i_core_name = len_trim(core_name)
 
       IF (aspect .ne. 1.) THEN
-          write(out_spec, 102) dir_work, core_name, particle_name, aspect_name, N_name, b_name, dist_name, pol_name, prop_name, eps_name, sub_name
- 102      format(a<i_dir_work>, a<i_core_name>, a<2>, '0', a<i_aspect_name>, '_N=', a<i_N_name>, '_b=', a<i_b_name>, '_h=',a<i_dist_name>, '_pol=',a<5>,'_prop=', a<1>,'_eps=', a<i_eps_name>, '_', a<4>,'.dat')
+          write(out_spec, 102) dir_work, core_name, particle_name, aspect_name, N_name, b_name, dist_name, pol_name, prop_name, eps_name
+ 102      format(a<i_dir_work>, a<i_core_name>, a<2>, '0', a<i_aspect_name>, '_N=', a<i_N_name>, '_b=', a<i_b_name>, '_h=',a<i_dist_name>, '_pol=',a<5>,'_prop=', a<1>,'_eps=', a<i_eps_name>,'.dat')
           ELSE 
-              write(out_spec, 103) dir_work, core_name, particle_name, N_name, b_name, dist_name, pol_name, prop_name, eps_name, sub_name
- 103          format(a<i_dir_work>,'2D_', a<i_core_name>, '_',a<2>, '_N=', a<i_N_name>, '_b=', a<i_b_name>, '_h=',a<i_dist_name>, '_pol=',a<5>,'_prop=', a<1>, '_eps=', a<i_eps_name>, '_', a<4>, '.dat')
+              write(out_spec, 103) dir_work, core_name, particle_name, N_name, b_name, dist_name, pol_name, prop_name, eps_name
+ 103          format(a<i_dir_work>,'2D_', a<i_core_name>, '_',a<2>, '_N=', a<i_N_name>, '_b=', a<i_b_name>, '_h=',a<i_dist_name>, '_pol=',a<5>,'_prop=', a<1>, '_eps=', a<i_eps_name>, '.dat')
       END IF
          
       i_dir_work = len_trim(dir_work)
-      i_dir_tab  = len_trim(dir_tab)
 !c 
 !c--------- Constants -------------------------- 
 !c 
@@ -196,10 +184,10 @@
 !c-----------Calculating a_eff-----------------------
 !c
       if (aspect .ne. 1) then
-          if (nshape .eq. 1) a_eff = b / aspect ** (1./3.)
-          if (nshape .eq. 2) a_eff = b / aspect ** (2./3.)
+          if (nshape .eq. 1) a_eff = 0.5 * (b1 + b2) / aspect ** (1./3.)
+          if (nshape .eq. 2) a_eff = 0.5 * (b1 + b2) / aspect ** (2./3.)
       end if
-      if (aspect .eq. 1) a_eff = b     
+      if (aspect .eq. 1) a_eff = 0.5 * (b1 + b2)
 !c
 !c--------------------Converting degrees to radians---------------------
 !c
@@ -285,15 +273,15 @@
           allocate(x(1:N),y(1:N),z(1:N)) 
       ENDIF  
       
-      x = 0.
-      y = 0.
-      z = 0.
+!      x = 0.
+!      y = 0.
+!      z = 0.
       
-      call coordinates(types, dist, height, x, y, z, N, Nline)
+      call coordinates(types, dist, x, y, z, N, Nline)
 
       write (*,*) '--------------------------------------------------'
       write (*,*) '2D lattice, NxN=', N
-      write (*,*) 'b=', sngl(b)
+      write (*,*) 'b1=', sngl(b1), 'b2=', sngl(b2)
       write (*,*) 'period=', sngl(dist)
       write (*,*) '--------------------------------------------------'
       !pause
@@ -329,20 +317,14 @@
 !c   
 !c----------------------------------------------------------------------- 
 !c---------------------START LOOP OVER OMEGA-----------------------------             
-      do 15 iw = 1,nw
+      do 15 il = 1,nl
 !c----------------------------------------------------------------------- 
 !c-----------------------------------------------------------------------       
  
-          dw = (omega_max - omega_min) / dfloat(nw-1)
-          wi =  omega_min + dw * dfloat(iw-1)
+          dl = (l_max - l_min) / dfloat(nl-1)
+          li =  l_min + dl * dfloat(il-1)
       
-          li = twopi * 3.0d2 / wi
-      
-          write(*,*) wi,li
-      
-          write (name_omega, '(f5.3)') wi 
-          name_omega = trim(adjustl(name_omega)) 
-          i_omega_name = len_trim(name_omega)
+          write(*,*) li
 
           wv = sqrt(eps_ext) * twopi / li
           wv_0 = ru 
@@ -358,8 +340,8 @@
           call permittivity (mat_core_2, li,eps_ext,eps_core_2)
             eps_2 = eps_shell_2 * (eps_core_2 + 2.*eps_shell_2 + 2.*fill*(eps_core_2-eps_shell_2))/ (eps_core_2 + 2.*eps_shell_2 - fill*(eps_core_2-eps_shell_2))
                   
-          call susceptibility_single(eps_1, N, nshape, naxis, b, aspect, wv, zet_ED_1, zet_MD_1) 
-          call susceptibility_single(eps_2, N, nshape, naxis, b, aspect, wv, zet_ED_2, zet_MD_2) 
+          call susceptibility(eps_1, N, nshape, naxis, b1, aspect, wv, zet_ED_1, zet_MD_1) 
+          call susceptibility(eps_2, N, nshape, naxis, b2, aspect, wv, zet_ED_2, zet_MD_2) 
           
           if (N .eq. 1) then
               zet_ED = zet_ED_1
@@ -618,7 +600,7 @@
       qe_MD = 4.*wv_1*sum_e_MD/(float(N)*a_eff**2)
       
       !ED_MD
-      write(70,*)  sngl(li), sngl(wi), sngl(qe_ED_MD), sngl(qe_ED), sngl(qe_MD)
+      write(70,*)  sngl(qe_ED_MD)!, sngl(qe_ED), sngl(qe_MD)
 
 !c---------------------------------------------------------------------                  
 !c---------------------------------------------------------------------      

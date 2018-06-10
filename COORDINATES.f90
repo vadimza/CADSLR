@@ -1,18 +1,18 @@
-SUBROUTINE COORDINATES (types, dist, height, x, y, z, N, Nline)    
+    SUBROUTINE COORDINATES (types, dist, x, y, z, N, Nline)    
+    
     implicit none
+    
     integer*4 types, Nline, N
     real*8 dist, height, rz
     real*8, dimension(:) :: x,y,z
     integer :: i, j, k
        
     rz = 0.0d0
-    
 !c 
-!c------------------- 2d chain --------------- 
+!c------------------- 1D CHAIN--------------- 
 !c         0 0 0 0 0
 !c-----------------------------------------------------------------
 !c 
-      
       IF (types .eq. 1) THEN
         do j = 1, Nline
               x(j) = (j-1) * dist 
@@ -79,7 +79,6 @@ SUBROUTINE COORDINATES (types, dist, height, x, y, z, N, Nline)
 !c-----------------------------------------------------------------
 !c
       IF (types .eq. 4) THEN
-
           k = 1
           
           do j = 1, Nline, 2
@@ -101,7 +100,6 @@ SUBROUTINE COORDINATES (types, dist, height, x, y, z, N, Nline)
 !c-----------------------------------------------------------------
 !c
       IF (types .eq. 5) THEN
-
         k =1
         
         do i = 1, Nline, 2 

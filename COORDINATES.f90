@@ -1,14 +1,11 @@
-SUBROUTINE tekecoordinates (types, dist, height, x, y, z, N, Nline)    
+SUBROUTINE COORDINATES (types, dist, height, x, y, z, N, Nline)    
     implicit none
     integer*4 types, Nline, N
     real*8 dist, height, rz
     real*8, dimension(:) :: x,y,z
     integer :: i, j, k
-      
-    
+       
     rz = 0.0d0
-   
-    
     
 !c 
 !c------------------- 2d chain --------------- 

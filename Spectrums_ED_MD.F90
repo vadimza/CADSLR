@@ -57,17 +57,14 @@
       complex*16,   allocatable, dimension(:,:)   :: rhs_ED_MD
       complex*16,   allocatable, dimension(:,:)   :: G_tenzor, C_tenzor
       
-    
         interface
-            subroutine tekecoordinates (types, dist, height, x, y, z, N, Nline)    
+            subroutine coordinates (types, dist, height, x, y, z, N, Nline)    
                 real*8,       allocatable, dimension(:) :: x, y, z
                 integer*4 types, Nline, N
                 real*8 dist, height
-            end subroutine tekecoordinates
+            end subroutine coordinates
         end interface
-      
-      
-      
+       
 !c 
 !c------------------ Reading parameters from 'inp.par' file ------------------------ 
 !c  
@@ -103,8 +100,8 @@
         if (TMPSTR_FULL(2:7) .eq. "POL(E)") read(70,*)          theta_pol_ED,  phi_pol_ED
         if (TMPSTR_FULL(2:8) .eq. "PROP(K)") read(70,*)         theta_prop, phi_prop
         if (TMPSTR_FULL(2:11).eq. "EXCITATION") read(70,*)      excitation
-        if (TMPSTR_FULL(2:6) .eq. "CORE") read(70,*)            mat_core_1, mat_core_2
-        if (TMPSTR_FULL(2:7) .eq. "SHELL") read(70,*)           mat_shell_1, mat_shell_2
+        if (TMPSTR_FULL(2:5) .eq. "CORE")  read(70,*)           mat_core_1, mat_core_2
+        if (TMPSTR_FULL(2:6) .eq. "SHELL") read(70,*)           mat_shell_1, mat_shell_2
         if (TMPSTR_FULL(2:9) .eq. "MATERIAL") read(70,*)        mat_sub
         if (TMPSTR_FULL(2:8) .eq. "EPSILON") read(70,*)         eps_ext
         if (TMPSTR_FULL(2:10).eq. "SUBSTRATE") read(70,*)       substrate
@@ -223,9 +220,7 @@
       if(.not. exist_flag_work) goto 206
 !c 
 !c------------------- Writing coordinates --------------- 
-!c 
-      
-      
+!c          
 !c 
 !c------------------- for single chain---------------       
 !c      
@@ -233,8 +228,6 @@
          Nline = N
          allocate(x(1:N),y(1:N),z(1:N))
       ENDIF
-
-      
 !c
 !c----------------------full lattice------------------------------
 !c         0 0 0 0 0
@@ -249,9 +242,6 @@
           N = N**2.
           allocate(x(1:N),y(1:N),z(1:N)) 
       ENDIF
-      
-      
-      
 !c
 !c----------------------cut lattice------------------------------
 !c         0 0 0 0 0
@@ -266,9 +256,6 @@
           N = N**2 - ((N-1)/2)**2
           allocate(x(1:N),y(1:N),z(1:N))
       ENDIF
-      
-      
-      
 !c
 !c----------------------cut lattice------------------------------
 !c         0   0   0
@@ -283,9 +270,6 @@
           N = (N**2 + N)/2
           allocate(x(1:N),y(1:N),z(1:N))
       ENDIF
-      
-      
-      
 !c
 !c----------------------hex------------------------------
 !c           0 0 0 0 0
@@ -305,9 +289,8 @@
       y = 0.
       z = 0.
       
-      call tekecoordinates(types, dist, height, x, y, z, N, Nline)
-      
-      
+      call coordinates(types, dist, height, x, y, z, N, Nline)
+
       write (*,*) '--------------------------------------------------'
       write (*,*) '2D lattice, NxN=', N
       write (*,*) 'b=', sngl(b)
@@ -375,9 +358,6 @@
           call permittivity (mat_core_2, li,eps_ext,eps_core_2)
             eps_2 = eps_shell_2 * (eps_core_2 + 2.*eps_shell_2 + 2.*fill*(eps_core_2-eps_shell_2))/ (eps_core_2 + 2.*eps_shell_2 - fill*(eps_core_2-eps_shell_2))
                   
-          
-          !call susceptibility(eps, N, nshape, naxis, b, aspect, wv, zet_ED, zet_MD_2)  
-          
           call susceptibility_single(eps_1, N, nshape, naxis, b, aspect, wv, zet_ED_1, zet_MD_1) 
           call susceptibility_single(eps_2, N, nshape, naxis, b, aspect, wv, zet_ED_2, zet_MD_2) 
           
@@ -402,12 +382,9 @@
                 end if
                 end do
           end if
-          
-          
 !c
 !c----------- Creating matrix A --------------------------------- 
 !c  
-
 !__________________________________________electric part
           
           a_ED = cz 
@@ -496,7 +473,6 @@
                   
               else                      !for off diagonal elements G_ED matrix
                   G_tenzor(j,i) = -1.0 * G_tenzor(j,i)
-                  !C_tenzor(j,i) = -1.0 * C_tenzor(j,i) !probably you should do it
               end if
 5     continue
        

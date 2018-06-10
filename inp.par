@@ -7,7 +7,7 @@ C:\git_repositories\CADSLR\results\
 #FILLING FACTOR					
 1.
 #STRUCTURE														!1 - CHAIN, 2 - SQUARE, 3 - CUT FIRST, 4 - CUT ROW, 5 - HEX
-5
+2
 #NUMBER OF PARTICLES													! INTERPARTICLE DISTANCE IN CASE OF 1D CHAIN OR NUMBER OF PARTICLES IN ROW(COLUMN)
 3
 #INTERPARTICLE DISTANCE
@@ -29,9 +29,9 @@ C:\git_repositories\CADSLR\results\
 #EXCITATION TYPE			                                        !	0 - TIP / 1 - PLANE WAVE
 1	
 #CORE MATERIAL 			                                                !	1 - Ag / 2 - Au / 3 - TiN 800 / 4 - ZrN / 5 - AZO / 6 - GZO / 7 - ITO / 8 - Si
-8
+8	1
 #SHELL MATERIAL			                                                !	1 - Ag / 2 - Au / 3 - TiN 800 / 4 - ZrN / 5 - AZO / 6 - GZO / 7 - ITO / 8 - Si
-8
+8	1
 #MATERIAL OF SUBSTRATE		                                                !	1 - Ag / 2 - Au / 3 - TiN 800 / 4 - ZrN / 5 - AZO / 6 - GZO / 7 - ITO / 8 - Si
 1
 #EPSILON OF HOST MEDIUM		                                                !	1. - VACUUM / 1.78 - WATER

@@ -15,7 +15,7 @@
       
       integer*4 N, Na, Nline, i, j, k, alpha, beta, nl, il, ia, ja
       integer*4 nshape, naxis, nw, iw, excitation
-      integer*4 substrate, mat_core, mat_shell, mat_sub
+      integer*4 substrate, mat_core_1, mat_core_2, mat_shell_1, mat_shell_2, mat_sub
       integer*4 lwork, liwork, info, istat
       integer*4 i_N_name, i_b_name, i_dist_name, i_eps_name
       integer*4 i_aspect_name, i_height_name, i_omega_name, i_core_name
@@ -41,7 +41,7 @@
       real*8 sum_e_ED_MD, sum_a_ED_MD, sum_s_ED_MD, qe_ED_MD, qa_ED_MD, qs_ED_MD
       
       complex*16 cu, cz, phase_fact, ref
-      complex*16 eps_core, eps_shell, eps_sub, eps
+      complex*16 eps_core_1,eps_core_2, eps_shell_1, eps_shell_2, eps_sub, eps_1, eps_2
       complex*16 GRxx, GRyy, GRzz, GRxz, GRzx
       complex*16 dn0, cdx, cdy, cdz
       complex*16 sum_x, sum_y, sum_z
@@ -49,6 +49,7 @@
       integer*4,    allocatable, dimension(:)     :: iwork
       real*8,       allocatable, dimension(:)     :: x,y,z
       complex*16,   allocatable, dimension(:)     :: work, zet_ED, zet_MD
+      complex*16,                dimension(3)     :: zet_ED_1, zet_MD_1,zet_ED_2, zet_MD_2
       complex*16,   allocatable, dimension(:,:)   :: a, rhs
       complex*16,   allocatable, dimension(:,:,:) :: GR      
       complex*16,   allocatable, dimension(:,:)   :: E_field, H_field, field_ED_MD
@@ -102,8 +103,8 @@
         if (TMPSTR_FULL(2:7) .eq. "POL(E)") read(70,*)          theta_pol_ED,  phi_pol_ED
         if (TMPSTR_FULL(2:8) .eq. "PROP(K)") read(70,*)         theta_prop, phi_prop
         if (TMPSTR_FULL(2:11).eq. "EXCITATION") read(70,*)      excitation
-        if (TMPSTR_FULL(2:6) .eq. "CORE") read(70,*)            mat_core
-        if (TMPSTR_FULL(2:7) .eq. "SHELL") read(70,*)           mat_shell
+        if (TMPSTR_FULL(2:6) .eq. "CORE") read(70,*)            mat_core_1, mat_core_2
+        if (TMPSTR_FULL(2:7) .eq. "SHELL") read(70,*)           mat_shell_1, mat_shell_2
         if (TMPSTR_FULL(2:9) .eq. "MATERIAL") read(70,*)        mat_sub
         if (TMPSTR_FULL(2:8) .eq. "EPSILON") read(70,*)         eps_ext
         if (TMPSTR_FULL(2:10).eq. "SUBSTRATE") read(70,*)       substrate
@@ -149,14 +150,14 @@
       if (nshape .eq. 2 .and. aspect .ne. 1.) particle_name = 'OB'
       if (aspect .eq. 1.)                     particle_name = 'SP'
             
-      if (mat_core .eq. 1) core_name = 'AG'
-      if (mat_core .eq. 2) core_name = 'AU'
-      if (mat_core .eq. 3) core_name = 'TiN'
-      if (mat_core .eq. 4) core_name = 'ZrN'
-      if (mat_core .eq. 5) core_name = 'AZO'
-      if (mat_core .eq. 6) core_name = 'GZO'
-      if (mat_core .eq. 7) core_name = 'ITO'
-      if (mat_core .eq. 8) core_name = 'SI'
+      if (mat_core_1 .eq. 1) core_name = 'AG'
+      if (mat_core_1 .eq. 2) core_name = 'AU'
+      if (mat_core_1 .eq. 3) core_name = 'TiN'
+      if (mat_core_1 .eq. 4) core_name = 'ZrN'
+      if (mat_core_1 .eq. 5) core_name = 'AZO'
+      if (mat_core_1 .eq. 6) core_name = 'GZO'
+      if (mat_core_1 .eq. 7) core_name = 'ITO'
+      if (mat_core_1 .eq. 8) core_name = 'SI'
             
       if (substrate .eq. 0) sub_name = 'free'
       if (substrate .eq. 1) sub_name = 'subs'
@@ -312,7 +313,7 @@
       write (*,*) 'b=', sngl(b)
       write (*,*) 'period=', sngl(dist)
       write (*,*) '--------------------------------------------------'
-      pause
+      !pause
 !c      
 !c-----------------------Allocating workspace-----------------------------      
 !c      
@@ -320,8 +321,10 @@
   
        allocate(E_field(1:Na,1:1), H_field(1:Na,1:1))
        allocate(a_ED_MD(1:2*Na,1:2*Na))
+       
        allocate(zet_ED(1:Na))
        allocate(zet_MD(1:Na))
+       
        allocate(field_ED_MD(1:2*Na,1:1))
        allocate(rhs_ED_MD(1:2*Na,1:1))
        allocate(a_ED(1:Na,1:Na), a_MD(1:Na,1:Na))
@@ -364,12 +367,43 @@
           wv_2 = wv*wv 
           wv_3 = wv_2*wv 
        
-          call permittivity (mat_shell,li,eps_ext,eps_shell)
-          call permittivity (mat_core, li,eps_ext,eps_core)
-      
-          eps = eps_shell * (eps_core + 2.*eps_shell + 2.*fill*(eps_core-eps_shell))/ (eps_core + 2.*eps_shell - fill*(eps_core-eps_shell))        
+          call permittivity (mat_shell_1,li,eps_ext,eps_shell_1)
+          call permittivity (mat_core_1, li,eps_ext,eps_core_1)
+            eps_1 = eps_shell_1 * (eps_core_1 + 2.*eps_shell_1 + 2.*fill*(eps_core_1-eps_shell_1))/ (eps_core_1 + 2.*eps_shell_1 - fill*(eps_core_1-eps_shell_1))
+            
+          call permittivity (mat_shell_2,li,eps_ext,eps_shell_2)
+          call permittivity (mat_core_2, li,eps_ext,eps_core_2)
+            eps_2 = eps_shell_2 * (eps_core_2 + 2.*eps_shell_2 + 2.*fill*(eps_core_2-eps_shell_2))/ (eps_core_2 + 2.*eps_shell_2 - fill*(eps_core_2-eps_shell_2))
+                  
           
-          call susceptibility(eps, N, nshape, naxis, b, aspect, wv, zet_ED, zet_MD)      
+          !call susceptibility(eps, N, nshape, naxis, b, aspect, wv, zet_ED, zet_MD_2)  
+          
+          call susceptibility_single(eps_1, N, nshape, naxis, b, aspect, wv, zet_ED_1, zet_MD_1) 
+          call susceptibility_single(eps_2, N, nshape, naxis, b, aspect, wv, zet_ED_2, zet_MD_2) 
+          
+          if (N .eq. 1) then
+              zet_ED = zet_ED_1
+              zet_MD = zet_MD_1
+              else
+                do i = 1, Na, 6
+                    zet_ED (i)   = zet_ED_1(1)
+                    zet_ED (i+1) = zet_ED_1(2)
+                    zet_ED (i+2) = zet_ED_1(3)
+                    zet_MD (i)   = zet_MD_1(1)
+                    zet_MD (i+1) = zet_MD_1(2)
+                    zet_MD (i+2) = zet_MD_1(3)
+                if(i+3 .lt. Na) then
+                    zet_ED (i+3) = zet_ED_2(1)
+                    zet_ED (i+4) = zet_ED_2(2)
+                    zet_ED (i+5) = zet_ED_2(3)
+                    zet_MD (i+3) = zet_MD_2(1)
+                    zet_MD (i+4) = zet_MD_2(2)
+                    zet_MD (i+5) = zet_MD_2(3)
+                end if
+                end do
+          end if
+          
+          
 !c
 !c----------- Creating matrix A --------------------------------- 
 !c  

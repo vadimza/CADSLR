@@ -37,10 +37,11 @@
     complex*16,   allocatable, dimension(:,:)   :: a, rhs      
     complex*16,   allocatable, dimension(:,:)   :: E_field, H_field
     complex*16,   allocatable, dimension(:,:)   :: a_e, a_m, a_em 
-    complex*16,   allocatable, dimension(:,:)   :: rhs_em
+    complex*16,   allocatable, dimension(:,:)   :: rhs_ED_MD
     complex*16,   allocatable, dimension(:,:)   :: G_tenzor, C_tenzor
     character*10, allocatable, dimension(:)     :: mat
-!c 
+!c
+
 !c------------------ Reading parameters from input file ------------------------ 
 !c  
     CALL CPU_TIME (time_begin)
@@ -141,7 +142,7 @@
     allocate(zet_e(1:Na))
     allocate(zet_m(1:Na))
        
-    allocate(rhs_em(1:2*Na,1:1))
+    allocate(rhs_ED_MD(1:2*Na,1:1))
     allocate(a_e(1:Na,1:Na), a_m(1:Na,1:Na))
     allocate(G_tenzor(1:Na,1:Na), C_tenzor(1:Na,1:Na))
        
@@ -350,8 +351,8 @@
 
         do i = 1, Na
             
-            rhs_em(   i,1) = E_field(i,1)
-            rhs_em(Na+i,1) = H_field(i,1)
+            rhs_ED_MD(   i,1) = E_field(i,1)
+            rhs_ED_MD(Na+i,1) = H_field(i,1)
         
         end do
 !c 
@@ -361,12 +362,12 @@
         allocate(iwork(liwork)) 
         
         allocate(work(1)) 
-        call zsysv('U',2*Na,1,a_em,2*Na,iwork,rhs_em,2*Na,work,-1,info) 
+        call zsysv('U',2*Na,1,a_em,2*Na,iwork,rhs_ED_MD,2*Na,work,-1,info) 
         lwork = work(1) 
         deallocate(work) 
         allocate(work(lwork))
         
-        call zsysv('U',2*Na,1,a_em,2*Na,iwork,rhs_em,2*Na,work,lwork,info) 
+        call zsysv('U',2*Na,1,a_em,2*Na,iwork,rhs_ED_MD,2*Na,work,lwork,info) 
         
         if(info .ne. 0) then 
             write(*,*) 'Matrix inversion has failed; exiting' 
@@ -385,9 +386,9 @@
 
         do i=1,Na
 
-            sum_ext_em = sum_ext_em + aimag(rhs_em(i,1)*dconjg(E_field(i,1))) + mueps*aimag(rhs_em(Na+i,1)*dconjg(H_field(i,1)))
-            sum_ext_e = sum_ext_e + aimag(rhs_em(i,1) * dconjg(E_field(i,1))) 
-            sum_ext_m = sum_ext_m + mueps*aimag(rhs_em(Na+i,1)*dconjg(H_field(i,1)))
+            sum_ext_em = sum_ext_em + aimag(rhs_ED_MD(i,1)*dconjg(E_field(i,1))) + mueps*aimag(rhs_ED_MD(Na+i,1)*dconjg(H_field(i,1)))
+            sum_ext_e = sum_ext_e + aimag(rhs_ED_MD(i,1) * dconjg(E_field(i,1))) 
+            sum_ext_m = sum_ext_m + mueps*aimag(rhs_ED_MD(Na+i,1)*dconjg(H_field(i,1)))
             
         end do
         
@@ -403,7 +404,7 @@
 !c--------------------------------------------------------------------- 
 !c       
     deallocate(a_em)
-    deallocate(rhs_em)
+    deallocate(rhs_ED_MD)
     close(70)
     close(80)
  

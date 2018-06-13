@@ -1,5 +1,5 @@
  number_of_particles
-         400
+         900
  lambda_1
                    400
  lambda_2
@@ -15,7 +15,7 @@
  host_medium
    1.00000000000000     
  structure_file
- 408.coord           
+ 300_250.coord       
  output_file
- 408.out             
+ 300_250.out         
  end_of_options

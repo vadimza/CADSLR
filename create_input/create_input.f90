@@ -12,7 +12,7 @@
     integer*8 lambda1, lambda2, lambdan
     integer*8 theta_E1, theta_E2, phi_E1, phi_E2
     integer*8 theta_k1, theta_k2, phi_k1, phi_k2
-    integer :: i, j
+    integer :: i, j, id
     integer*8 i_dist_name, i_dist_namex, i_dist_namey
     
     real*8 host_medium, rz
@@ -43,11 +43,14 @@
     parameter (host_medium = 1.0)
     
     rz = 0.0d0
+    id = 0
     
     open(unit=80,file='run.bat',status='unknown')
     
     do idistx = distx1,distx2
     do idisty = disty1,disty2
+        
+        id = id + 1
         
         write (dist_namex, '(I4)') idistx 
         dist_namex   = trim(adjustl(dist_namex))
@@ -132,8 +135,8 @@
         
         close(unit=70)
         
-!        if (mod(idist,4) .eq. 0)  write(80,*) 'START /WAIT ','CADSLR.exe ', input_file
-        write(80,*) 'START ','CADSLR.exe ', input_file
+        if (mod(id,4) .eq. 0)  write(80,*) 'START /WAIT ','CADSLR.exe ', input_file
+        if (mod(id,4) .ne. 0)  write(80,*) 'START ','CADSLR.exe ', input_file
         
     enddo
     enddo

@@ -2,17 +2,18 @@
     use iflport
     implicit none
     
-    character*4 dist_name
+    character*10 dist_name, dist_namex, dist_namey
     character*20 chain, excitation_type
     character*20 input_file, output_file, structure_file
     
     integer*4 Nline, N
-    integer*8 dist1, dist2, idist
+    integer*8 distx1, distx2, idistx
+    integer*8 disty1, disty2, idisty
     integer*8 lambda1, lambda2, lambdan
     integer*8 theta_E1, theta_E2, phi_E1, phi_E2
     integer*8 theta_k1, theta_k2, phi_k1, phi_k2
     integer :: i, j
-    integer*8 i_dist_name
+    integer*8 i_dist_name, i_dist_namex, i_dist_namey
     
     real*8 host_medium, rz
     real*8 radius
@@ -20,11 +21,13 @@
     real*8,       allocatable, dimension(:) :: x,y,z,rad
     character*10, allocatable, dimension(:) :: mat
     
-    parameter (Nline = 20)
+    parameter (Nline = 30)
     parameter (chain='2D')
-    parameter (radius = 80)
-    parameter (dist1 = 400)
-    parameter (dist2 = 410)
+    parameter (radius = 70)
+    parameter (distx1 = 300)
+    parameter (distx2 = 300)
+    parameter (disty1 = 250)
+    parameter (disty2 = 800)
     parameter (lambda1 = 400)
     parameter (lambda2 = 800)
     parameter (lambdan = 401)
@@ -43,11 +46,21 @@
     
     open(unit=80,file='run.bat',status='unknown')
     
-    do idist = dist1,dist2
+    do idistx = distx1,distx2
+    do idisty = disty1,disty2
         
-        write (dist_name, '(I4)') idist 
-        dist_name   = trim(adjustl(dist_name))
-        i_dist_name = len_trim(dist_name)
+        write (dist_namex, '(I4)') idistx 
+        dist_namex   = trim(adjustl(dist_namex))
+        i_dist_namex = len_trim(dist_namex)
+        
+        write (dist_namey, '(I4)') idisty 
+        dist_namey   = trim(adjustl(dist_namey))
+        i_dist_namey = len_trim(dist_namey)
+        
+        i_dist_name = i_dist_namex + i_dist_namey + 1
+        
+        write(dist_name, 100) dist_namex, dist_namey
+100     format(a<i_dist_namex>,'_',a<i_dist_namey>)
         
         if (chain .eq. '2D') then
             N = Nline**2
@@ -55,28 +68,28 @@
             rad = radius
             do j = 1, Nline
                 do i = 1, Nline 
-                    x(i + Nline*(j-1)) = (i-1) * idist 
-                    y(i + Nline*(j-1)) = (j-1) * idist
+                    x(i + Nline*(j-1)) = (i-1) * idistx 
+                    y(i + Nline*(j-1)) = (j-1) * idisty
                     z(i + Nline*(j-1)) = rz
                 enddo
             enddo
         endif
         
-        write(structure_file, 100) dist_name
-100     format(a<i_dist_name>,'.coord')
+        write(structure_file, 101) dist_name
+101     format(a<i_dist_name>,'.coord')
         
-        write(input_file, 101) dist_name
-101     format(a<i_dist_name>,'.inp')
+        write(input_file, 102) dist_name
+102     format(a<i_dist_name>,'.inp')
 
-        write(output_file, 102) dist_name
-102     format(a<i_dist_name>,'.out')
+        write(output_file, 103) dist_name
+103     format(a<i_dist_name>,'.out')
         
         open(unit=70,file=structure_file,status='unknown')
     
         do i = 1,N-1,2
         
             write(70,*) sngl(x(i)), sngl(y(i)), sngl(z(i)), sngl(rad(i)), 'Au'
-            write(70,*) sngl(x(i+1)), sngl(y(i+1)), sngl(z(i+1)), sngl(rad(i+1)), 'Si' 
+            write(70,*) sngl(x(i+1)), sngl(y(i+1)), sngl(z(i+1)), sngl(rad(i+1)), 'Au' 
         
         enddo
         
@@ -119,9 +132,10 @@
         
         close(unit=70)
         
-        if (mod(idist,4) .eq. 0)  write(80,*) 'START /WAIT ','CADSLR.exe ', input_file
-        if (mod(idist,4) .ne. 0)  write(80,*) 'START ','CADSLR.exe ', input_file
+!        if (mod(idist,4) .eq. 0)  write(80,*) 'START /WAIT ','CADSLR.exe ', input_file
+        write(80,*) 'START ','CADSLR.exe ', input_file
         
+    enddo
     enddo
     
     close(80)

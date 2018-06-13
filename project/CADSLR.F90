@@ -395,7 +395,7 @@
         Q_ext_e = 4.*wv_1*sum_ext_e/(float(N)*rad_mean**2.)
         Q_ext_m = 4.*wv_1*sum_ext_m/(float(N)*rad_mean**2)
       
-        write(70,*) sngl(li), sngl(Q_ext_em)!, sngl(Q_ext_e), sngl(Q_ext_m)
+        write(70,*) sngl(Q_ext_em)!, sngl(Q_ext_e), sngl(Q_ext_m)
 !c---------------------------------------------------------------------                  
 !c---------------------------------------------------------------------      
 15  end do 

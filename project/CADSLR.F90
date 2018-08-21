@@ -26,14 +26,20 @@
     real*8 sum_ext_e, Q_ext_e
     real*8 sum_ext_m, Q_ext_m
     real*8 sum_ext_em, Q_ext_em
+    real*8 sum_scat_e, Q_scat_e
+    real*8 sum_scat_m, Q_scat_m
+    real*8 sum_scat_em, Q_scat_em    
+    
       
-    complex*16 cu, cz, phase_fact
+    complex*16 cu,ncu, cz, phase_fact
     complex*16 eps
       
     integer*4,    allocatable, dimension(:)     :: iwork
     real*8,       allocatable, dimension(:)     :: x, y, z, rad
     complex*16,   allocatable, dimension(:)     :: work, zet_e, zet_m
     complex*16,                dimension(3)     :: zet_et, zet_mt
+    
+    complex*16,   allocatable, dimension(:)     :: aed, amm
     complex*16,   allocatable, dimension(:,:)   :: a, rhs      
     complex*16,   allocatable, dimension(:,:)   :: E_field, H_field
     complex*16,   allocatable, dimension(:,:)   :: a_e, a_m, a_em 
@@ -108,6 +114,7 @@
 !c 
     cz = (0.0d0,0.0d0) 
     cu = (0.0d0,1.0d0) 
+    ncu= (0.0d0,-1.0d0) 
     rz = 0.0d0 
     ru = 1.0d0 
     pi = 4.0d0*datan(ru) 
@@ -140,7 +147,8 @@
        
     allocate(zet_e(1:Na))
     allocate(zet_m(1:Na))
-       
+    
+      
     allocate(rhs_ED_MD(1:2*Na,1:1))
     allocate(a_e(1:Na,1:Na), a_m(1:Na,1:Na))
     allocate(G_tenzor(1:Na,1:Na), C_tenzor(1:Na,1:Na))
@@ -379,6 +387,7 @@
 !c 
 !c---------- Calculating spectrums------------------------------- 
 !c  
+!________________________ext_________________________        
         sum_ext_em = rz    
         sum_ext_e = rz
         sum_ext_m = rz
@@ -390,12 +399,49 @@
             sum_ext_m = sum_ext_m + mueps*aimag(rhs_ED_MD(Na+i,1)*dconjg(H_field(i,1)))
             
         end do
-        
+          
         Q_ext_em = 4.*wv_1*sum_ext_em/(float(N)*rad_mean**2.)
         Q_ext_e = 4.*wv_1*sum_ext_e/(float(N)*rad_mean**2.)
         Q_ext_m = 4.*wv_1*sum_ext_m/(float(N)*rad_mean**2)
-      
-        write(70,*) sngl(Q_ext_em)!, sngl(Q_ext_e), sngl(Q_ext_m)
+!_________________________________________________        
+        
+        
+        
+!________________________scat_________________________        
+        sum_scat_em = rz    
+        sum_scat_e = rz
+        sum_scat_m = rz        
+        
+        
+        allocate(aed(1:Na))
+        allocate(amm(1:Na))
+        
+        do i = 1, N
+            aed(3*i-2) = (2.*cu*wv_3/3. + zet_e(3*i-2)) * rhs_ED_MD(3*i-2,1)
+            aed(3*i-1) = (2.*cu*wv_3/3. + zet_e(3*i-1)) * rhs_ED_MD(3*i-1,1)
+            aed(3*i  ) = (2.*cu*wv_3/3. + zet_e(3*i  )) * rhs_ED_MD(3*i,1)
+            
+            amm(3*i-2) = (2.*cu*wv_3/3. + zet_m(3*i-2)) * rhs_ED_MD(3*N+3*i-2,1)
+            amm(3*i-1) = (2.*cu*wv_3/3. + zet_m(3*i-1)) * rhs_ED_MD(3*N+3*i-1,1)
+            amm(3*i  ) = (2.*cu*wv_3/3. + zet_m(3*i  )) * rhs_ED_MD(3*N+3*i,1)
+        end do
+        
+        do i=1,Na
+            
+            sum_scat_e = sum_scat_e + aimag(dconjg(rhs_ED_MD(i,1))    * aed(i) - dconjg(rhs_ED_MD(i,1))    * E_field(i,1))  
+            sum_scat_m = sum_scat_e + aimag(dconjg(rhs_ED_MD(Na+i,1)) * amm(i) - dconjg(rhs_ED_MD(Na+i,1)) * H_field(i,1))  
+            
+        end do
+        
+        Q_scat_e =         sum_scat_e * (4.*wv_1/(float(N)*rad_mean**2.))       !sigma_s^e + P      from MERCHIERS 27a
+        Q_scat_m = mueps * sum_scat_e * (4.*wv_1/(float(N)*rad_mean**2.))       !sigma_s^m + Q      from MERCHIERS 27b
+        
+        Q_scat_em = Q_scat_e + Q_scat_m !sigma_s^e + P + sigma_s^m + Q
+!_________________________________________________        
+
+        
+        
+        write(70,*) sngl(Q_ext_em),sngl(Q_scat_em) !, sngl(Q_ext_e), sngl(Q_ext_m)
 !c---------------------------------------------------------------------                  
 !c---------------------------------------------------------------------      
 15  end do 

@@ -21,16 +21,16 @@
     real*8,       allocatable, dimension(:) :: x,y,z,rad
     character*10, allocatable, dimension(:) :: mat
     
-    parameter (Nline = 30)
+    parameter (Nline = 10)
     parameter (chain='2D')
     parameter (radius = 70)
-    parameter (distx1 = 300)
-    parameter (distx2 = 300)
-    parameter (disty1 = 250)
-    parameter (disty2 = 800)
+    parameter (distx1 = 700)
+    parameter (distx2 = 700)
+    parameter (disty1 = 700)
+    parameter (disty2 = 700)
     parameter (lambda1 = 400)
-    parameter (lambda2 = 800)
-    parameter (lambdan = 401)
+    parameter (lambda2 = 1000)
+    parameter (lambdan = 601)
     parameter (theta_E1 = 90)
     parameter (theta_E2 = 90)
     parameter (phi_E1 = 0)
@@ -91,8 +91,8 @@
     
         do i = 1,N-1,2
         
-            write(70,*) sngl(x(i)), sngl(y(i)), sngl(z(i)), sngl(rad(i)), 'Au'
-            write(70,*) sngl(x(i+1)), sngl(y(i+1)), sngl(z(i+1)), sngl(rad(i+1)), 'Au' 
+            write(70,*) sngl(x(i)), sngl(y(i)), sngl(z(i)), sngl(rad(i)), 'Ni'
+            write(70,*) sngl(x(i+1)), sngl(y(i+1)), sngl(z(i+1)), sngl(rad(i+1)), 'Ni' 
         
         enddo
         

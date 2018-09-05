@@ -25,12 +25,12 @@
       
     mat = trim(adjustl(mati))
 
-    if (mat .eq. 'Ag' .or. mat .eq. 'Au' .or. mat .eq. 'Si') then 
+    if (mat .eq. 'Ag' .or. mat .eq. 'Au' .or. mat .eq. 'Si' .or. mat .eq. 'Ni') then 
            
         if (mat .eq. 'Ag') open(unit=81, file='johnson.silver.dat', status='old')
         if (mat .eq. 'Au') open(unit=81, file='johnson.gold.dat',   status='old')
         if (mat .eq. 'Si') open(unit=81, file='palik.silicon.dat',  status='old')
-        
+        if (mat .eq. 'Ni') open(unit=81, file='johnson.nickel.dat',  status='old')
         l_min = 10000.
         l_max = 0.
         read(81,*,end=14) l, r1, r2

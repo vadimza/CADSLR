@@ -51,6 +51,8 @@
 !c  
     CALL CPU_TIME (time_begin)
     
+    !inputfile = "500_500.inp"
+    !delete comments here
     cnt = command_argument_count ()
     if(cnt .GT. 0) then
         CALL GET_COMMAND_ARGUMENT (1, nar)
@@ -429,19 +431,21 @@
         do i=1,Na
             
             sum_scat_e = sum_scat_e + aimag(dconjg(rhs_ED_MD(i,1))    * aed(i) - dconjg(rhs_ED_MD(i,1))    * E_field(i,1))  
-            sum_scat_m = sum_scat_e + aimag(dconjg(rhs_ED_MD(Na+i,1)) * amm(i) - dconjg(rhs_ED_MD(Na+i,1)) * H_field(i,1))  
+            sum_scat_m = sum_scat_m + aimag(dconjg(rhs_ED_MD(Na+i,1)) * amm(i) - dconjg(rhs_ED_MD(Na+i,1)) * H_field(i,1))  
             
         end do
         
         Q_scat_e =         sum_scat_e * (4.*wv_1/(float(N)*rad_mean**2.))       !sigma_s^e + P      from MERCHIERS 27a
-        Q_scat_m = mueps * sum_scat_e * (4.*wv_1/(float(N)*rad_mean**2.))       !sigma_s^m + Q      from MERCHIERS 27b
+        Q_scat_m = mueps * sum_scat_m * (4.*wv_1/(float(N)*rad_mean**2.))       !sigma_s^m + Q      from MERCHIERS 27b
         
         Q_scat_em = Q_scat_e + Q_scat_m !sigma_s^e + P + sigma_s^m + Q
 !_________________________________________________        
 
+        deallocate(aed)
+        deallocate(amm)
         
-        
-        write(70,*) sngl(Q_ext_em),sngl(Q_scat_em) !, sngl(Q_ext_e), sngl(Q_ext_m)
+        !write(70,*) sngl(Q_ext_em), sngl(Q_scat_em) 
+        write(70,*) li, sngl(Q_ext_em), sngl(Q_scat_em)
 !c---------------------------------------------------------------------                  
 !c---------------------------------------------------------------------      
 15  end do 
@@ -450,6 +454,7 @@
 !c       
     deallocate(a_em)
     deallocate(rhs_ED_MD)
+
     close(70)
     close(80)
  

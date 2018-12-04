@@ -31,8 +31,10 @@
     xi_kr_0 = psi_kr_0 - cu * (dcos(wv_1*rad)/(wv_1*rad) + dsin(wv_1*rad))
     xi_kr_1 = psi_kr_1 + cu * (dsin(wv_1*rad)/(wv_1*rad) + dcos(wv_1*rad)/((wv_1*rad)**2) - dcos(wv_1*rad))
       
-    zet_e = - 2. * cu * wv_3 / 3. * (m*psi_mkr_0*xi_kr_1 -   xi_kr_0*psi_mkr_1) / (m*psi_mkr_0*psi_kr_1 -   psi_kr_0*psi_mkr_1)
-    zet_m = - 2. * cu * wv_3 / 3. * (  psi_mkr_0*xi_kr_1 - m*xi_kr_0*psi_mkr_1) / (  psi_mkr_0*psi_kr_1 - m*psi_kr_0*psi_mkr_1)
+    zet_e = - 2. * cu * wv_3 / 3. * (m*psi_mkr_0*xi_kr_1 -   xi_kr_0*psi_mkr_1) / &
+    (m*psi_mkr_0*psi_kr_1 -   psi_kr_0*psi_mkr_1)
+    zet_m = - 2. * cu * wv_3 / 3. * (  psi_mkr_0*xi_kr_1 - m*xi_kr_0*psi_mkr_1) / &
+    (  psi_mkr_0*psi_kr_1 - m*psi_kr_0*psi_mkr_1)
       
     RETURN
       

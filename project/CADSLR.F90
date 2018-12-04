@@ -138,7 +138,9 @@
 !c      
 !c--------------------Checking for input errors-------------------------      
 !c
-    if (sin(theta_pol_e)*cos(phi_pol_e) * sin(theta_prop)*cos(phi_prop) + sin(theta_pol_e)*sin(phi_pol_e) * sin(theta_prop)*sin(phi_prop) + cos(theta_pol_e)*cos(theta_prop) .gt. 1.E-10) goto 205
+    if (sin(theta_pol_e)*cos(phi_pol_e) * sin(theta_prop)*cos(phi_prop) + &
+    sin(theta_pol_e)*sin(phi_pol_e) * sin(theta_prop)*sin(phi_prop) + &
+    cos(theta_pol_e)*cos(theta_prop) .gt. 1.E-10) goto 205
 !c      
 !c-----------------------Allocating workspace-----------------------------      
 !c      
@@ -396,7 +398,8 @@
 
         do i=1,Na
 
-            sum_ext_em = sum_ext_em + aimag(rhs_ED_MD(i,1)*dconjg(E_field(i,1))) + mueps*aimag(rhs_ED_MD(Na+i,1)*dconjg(H_field(i,1)))
+            sum_ext_em = sum_ext_em + aimag(rhs_ED_MD(i,1)*dconjg(E_field(i,1))) + &
+                                mueps*aimag(rhs_ED_MD(Na+i,1)*dconjg(H_field(i,1)))
             sum_ext_e = sum_ext_e + aimag(rhs_ED_MD(i,1) * dconjg(E_field(i,1))) 
             sum_ext_m = sum_ext_m + mueps*aimag(rhs_ED_MD(Na+i,1)*dconjg(H_field(i,1)))
             
@@ -430,8 +433,10 @@
         
         do i=1,Na
             
-            sum_scat_e = sum_scat_e + aimag(dconjg(rhs_ED_MD(i,1))    * aed(i) - dconjg(rhs_ED_MD(i,1))    * E_field(i,1))  
-            sum_scat_m = sum_scat_m + aimag(dconjg(rhs_ED_MD(Na+i,1)) * amm(i) - dconjg(rhs_ED_MD(Na+i,1)) * H_field(i,1))  
+            sum_scat_e = sum_scat_e + aimag(dconjg(rhs_ED_MD(i,1))    * aed(i) - &
+                                      dconjg(rhs_ED_MD(i,1))    * E_field(i,1))  
+            sum_scat_m = sum_scat_m + aimag(dconjg(rhs_ED_MD(Na+i,1)) * amm(i) - &
+                                      dconjg(rhs_ED_MD(Na+i,1)) * H_field(i,1))  
             
         end do
         
@@ -444,8 +449,7 @@
         deallocate(aed)
         deallocate(amm)
         
-        !write(70,*) sngl(Q_ext_em), sngl(Q_scat_em) 
-        write(70,*) li, sngl(Q_ext_em), sngl(Q_scat_em)
+        write(70,'(6F7.3)') sngl(Q_ext_em), sngl(Q_ext_e), sngl(Q_ext_m), sngl(Q_scat_em), sngl(Q_scat_e), sngl(Q_scat_m)
 !c---------------------------------------------------------------------                  
 !c---------------------------------------------------------------------      
 15  end do 

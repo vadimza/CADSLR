@@ -86,7 +86,9 @@
         Br3 = 0.98543
         omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
       
-        eps = eps_0 + Am1/(En1**2 - omega**2 - cu*Br1*omega) + Am2/(En2**2 - omega**2 - cu*Br2*omega) + Am3/(En3**2 - omega**2 - cu*Br3*omega)
+        eps = eps_0 + Am1/(En1**2 - omega**2 - cu*Br1*omega) + &
+        Am2/(En2**2 - omega**2 - cu*Br2*omega) + &
+        Am3/(En3**2 - omega**2 - cu*Br3*omega)
       
     end if
 
@@ -100,7 +102,8 @@
         gamma_1 = 1.7369 
         omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
                   
-        eps = eps_0*ru - omega_p**2/(omega**2+cu*omega*g_inf) + f_1*omega_1**2 / (omega_1**2-omega**2-cu*omega*gamma_1)
+        eps = eps_0*ru - omega_p**2/(omega**2+cu*omega*g_inf) + &
+        f_1*omega_1**2 / (omega_1**2-omega**2-cu*omega*gamma_1)
      
     end if
 
@@ -114,7 +117,8 @@
         gamma_1 = 0.1017 
         omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
                   
-        eps = eps_0*ru - omega_p**2/(omega**2+cu*omega*g_inf) + f_1*omega_1**2 / (omega_1**2-omega**2-cu*omega*gamma_1)
+        eps = eps_0*ru - omega_p**2/(omega**2+cu*omega*g_inf) + &
+        f_1*omega_1**2 / (omega_1**2-omega**2-cu*omega*gamma_1)
      
     end if
 
@@ -128,7 +132,8 @@
         gamma_1 = 0.0924 
         omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
                   
-        eps = eps_0*ru - omega_p**2/(omega**2+cu*omega*g_inf) + f_1*omega_1**2 / (omega_1**2-omega**2-cu*omega*gamma_1)
+        eps = eps_0*ru - omega_p**2/(omega**2+cu*omega*g_inf) + &
+        f_1*omega_1**2 / (omega_1**2-omega**2-cu*omega*gamma_1)
      
     end if
 
@@ -142,7 +147,8 @@
         gamma_1 = 0.0919 
         omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
                   
-        eps = eps_0*ru - omega_p**2/(omega**2+cu*omega*g_inf) + f_1*omega_1**2 / (omega_1**2-omega**2-cu*omega*gamma_1)
+        eps = eps_0*ru - omega_p**2/(omega**2+cu*omega*g_inf) + &
+        f_1*omega_1**2 / (omega_1**2-omega**2-cu*omega*gamma_1)
      
     end if
 
@@ -159,7 +165,9 @@
         omega_02= 1.85
         omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
         
-        eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
+        eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + &
+        omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + &
+        omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
     
     end if
 
@@ -176,7 +184,9 @@
         omega_02= 1.92
         omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
         
-        eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
+        eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + &
+        omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + &
+        omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
     
     end if	  
 
@@ -193,7 +203,9 @@
         omega_02= 1.95
         omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
         
-        eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
+        eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + &
+        omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + &
+        omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
     
     end if      
 
@@ -210,7 +222,9 @@
         omega_02= 1.94
         omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
         
-        eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
+        eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + &
+        omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + &
+        omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
     
     end if	  
 
@@ -227,7 +241,9 @@
         omega_02= 1.96
         omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
         
-        eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
+        eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + &
+        omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + &
+        omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
     
     end if
 
@@ -244,7 +260,9 @@
         omega_02= 1.94
         omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
         
-        eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
+        eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + &
+        omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + &
+        omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
     
     end if
 
@@ -261,7 +279,9 @@
         omega_02= 2.00
         omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
         
-        eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
+        eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + &
+        omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + &
+        omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
     
     end if
 
@@ -278,7 +298,9 @@
         omega_02= 2.01
         omega = 4.135667*1.0d-15*2.99792458*1.0d8/(lambda*1.0d-9)
         
-        eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
+        eps = eps_inf - omega_p**2/(omega**2 + cu*G_D*omega) + &
+        omega_L1/(omega_01**2-omega**2-cu*gamma_1*omega) + &
+        omega_L2/(omega_02**2-omega**2-cu*gamma_2*omega)
     
     end if
 !c------------------------FINAL NORMALIZATION--------------------------------------

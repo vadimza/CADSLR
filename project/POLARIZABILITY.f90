@@ -1,4 +1,4 @@
-    SUBROUTINE SUSCEPTIBILITY (eps, rad, wv, zet_e, zet_m) 
+    SUBROUTINE POLARIZABILITY (eps, rad, wv, zet_e, zet_m) 
 
     implicit none
     real*8,    intent(in)  :: rad, wv

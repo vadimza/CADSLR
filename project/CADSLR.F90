@@ -2,19 +2,18 @@
     USE IFLPORT
     implicit none      
     
-    character*100 inputfile, outputfile, coordfile, excitation, nar, mati
+    character*100 inputfile, outputfile, coordfile, excitation, nar
     character*100 tmpstr
       
     logical exist_flag_work, result
       
-    integer*4 N, Na, i, j, alpha, beta, nl, ja
-    integer*4 il, ia
+    integer*4 N, Na, i, j, alpha, beta, nl, il, ia, ja
     integer*4 lwork, liwork, info, istat, cnt
       
-    real*8 aspect, b1, b2, dist, eps_ext, fill, rad_mean
+    real*8 dist, eps_ext, rad_mean
     real*8 li, l_min, l_max, dl
     real*8 theta_pol_e, phi_pol_e, theta_pol_m, phi_pol_m, theta_prop, phi_prop
-    real*8 ru, rz, pi, twopi, mu0, eps0, mueps, mueps_sq, epsmu_sq
+    real*8 ru, rz, pi, twopi
     real*8 wv, wv_0, wv_1, wv_2, wv_3
     real*8 xij, yij, zij, rij, rij_1, rij_2, rij_3, d_alpha_beta 
     real*8 rnijx, rnijy, rnijz, rnij_alpha, rnij_beta, rnij_alpha_beta
@@ -51,7 +50,7 @@
 !c  
     CALL CPU_TIME (time_begin)
     
-    !inputfile = "500_500.inp"
+    !inputfile = "10_10_540_400.inp"
     !delete comments here
     cnt = command_argument_count ()
     if(cnt .GT. 0) then
@@ -121,11 +120,6 @@
     ru = 1.0d0 
     pi = 4.0d0*datan(ru) 
     twopi = 2.0d0*pi
-    mu0   = 4.0d0*pi * 1.0d-7
-    eps0  = 8.85d0   * 1.0d-12
-    mueps = mu0 / eps0
-    mueps_sq = sqrt(   mueps)
-    epsmu_sq = sqrt(1./mueps)
 !c
 !c--------------------Converting degrees to radians---------------------
 !c
@@ -150,8 +144,7 @@
     allocate(a_em(1:2*Na,1:2*Na))
        
     allocate(zet_e(1:Na))
-    allocate(zet_m(1:Na))
-    
+    allocate(zet_m(1:Na))   
       
     allocate(rhs_ED_MD(1:2*Na,1:1))
     allocate(a_e(1:Na,1:Na), a_m(1:Na,1:Na))
@@ -187,8 +180,8 @@
         
         do i = 1,N
             
-            call permittivity  (mat(i), li, eps_ext, eps)
-            call susceptibility (eps, rad(i), wv, zet_et, zet_mt)
+            call permittivity (mat(i), li, eps_ext, eps)
+            call polarizability (eps, rad(i), wv, zet_et, zet_mt)
             zet_e(3*i-2) = zet_et(1)
             zet_e(3*i-1) = zet_et(2)
             zet_e(3*i  ) = zet_et(3)
@@ -293,8 +286,8 @@
                 
                 if (i .eq. j) then        !for diagonal elements a_e matrix
                     
-                    a_e(j,i) = zet_e(i)! - G_tenzor(j,i)
-                    a_m(j,i) = zet_m(i)! - C_tenzor(j,i)
+                    a_e(j,i) = zet_e(i)
+                    a_m(j,i) = zet_m(i)
                   
                 else                      !for off diagonal elements G_ED matrix
                     
@@ -312,13 +305,13 @@
         
             do j = 1, 3 * N
             
-                if(i .eq. j) a_em(    i,     j) =  a_e(i, j)                        !left up part           diagonal elements
-                if(i .eq. j) a_em(3*N+i, 3*N+j) =  a_m(i, j)                        !right down part        diagonal elements
+                if(i .eq. j) a_em(    i,     j) = a_e(i, j)                        !left up part           diagonal elements
+                if(i .eq. j) a_em(3*N+i, 3*N+j) = a_m(i, j)                        !right down part        diagonal elements
             
-                if(i .ne. j) a_em(    i,     j) =  G_tenzor(i, j)                    !left up part       off diagonal elements
-                if(i .ne. j) a_em(3*N+i, 3*N+j) =  G_tenzor(i, j)                    !right down part    off diagonal elements
-                if(i .ne. j) a_em(    i, 3*N+j) = -1.0 * epsmu_sq * C_tenzor(i, j)   !left down part     off diagonal elements 
-                if(i .ne. j) a_em(3*N+i,     j) =  mueps_sq* C_tenzor(i, j)   !right up part      off diagonal elements
+                if(i .ne. j) a_em(    i,     j) = G_tenzor(i, j)                   !left up part       off-diagonal elements
+                if(i .ne. j) a_em(3*N+i, 3*N+j) = G_tenzor(i, j)                   !right down part    off-diagonal elements
+                if(i .ne. j) a_em(    i, 3*N+j) = -1.0 * C_tenzor(i, j)            !left down part     off-diagonal elements 
+                if(i .ne. j) a_em(3*N+i,     j) = C_tenzor(i, j)                   !right up part      off-diagonal elements
         
             end do
              
@@ -338,12 +331,12 @@
             do i=1,N
                 
                 arg_inc = prop(1) * x(i) + prop(2) * y(i) + prop(3) * z(i)
-                E_field(3*i-2,1) =            pol_e(1) * cdexp(cu * wv_1 * arg_inc)
-                E_field(3*i-1,1) =            pol_e(2) * cdexp(cu * wv_1 * arg_inc)
-                E_field(3*i  ,1) =            pol_e(3) * cdexp(cu * wv_1 * arg_inc)
-                H_field(3*i-2,1) = epsmu_sq * pol_m(1) * cdexp(cu * wv_1 * arg_inc)
-                H_field(3*i-1,1) = epsmu_sq * pol_m(2) * cdexp(cu * wv_1 * arg_inc)
-                H_field(3*i  ,1) = epsmu_sq * pol_m(3) * cdexp(cu * wv_1 * arg_inc)
+                E_field(3*i-2,1) = pol_e(1) * cdexp(cu * wv_1 * arg_inc)
+                E_field(3*i-1,1) = pol_e(2) * cdexp(cu * wv_1 * arg_inc)
+                E_field(3*i  ,1) = pol_e(3) * cdexp(cu * wv_1 * arg_inc)
+                H_field(3*i-2,1) = pol_m(1) * cdexp(cu * wv_1 * arg_inc)
+                H_field(3*i-1,1) = pol_m(2) * cdexp(cu * wv_1 * arg_inc)
+                H_field(3*i  ,1) = pol_m(3) * cdexp(cu * wv_1 * arg_inc)
 
             end do
    
@@ -351,12 +344,12 @@
         
         if (excitation .eq. 'tip') then           !Tip
         
-            E_field(1,1) =            pol_e(1)  
-            E_field(2,1) =            pol_e(2) 
-            E_field(3,1) =            pol_e(3)
-            H_field(1,1) = epsmu_sq * pol_m(1)  
-            H_field(2,1) = epsmu_sq * pol_m(2) 
-            H_field(3,1) = epsmu_sq * pol_m(3)
+            E_field(1,1) = pol_e(1)  
+            E_field(2,1) = pol_e(2) 
+            E_field(3,1) = pol_e(3)
+            H_field(1,1) = pol_m(1)  
+            H_field(2,1) = pol_m(2) 
+            H_field(3,1) = pol_m(3)
         
         endif    
 
@@ -399,9 +392,9 @@
         do i=1,Na
 
             sum_ext_em = sum_ext_em + aimag(rhs_ED_MD(i,1)*dconjg(E_field(i,1))) + &
-                                mueps*aimag(rhs_ED_MD(Na+i,1)*dconjg(H_field(i,1)))
+                                      aimag(rhs_ED_MD(Na+i,1)*dconjg(H_field(i,1)))
             sum_ext_e = sum_ext_e + aimag(rhs_ED_MD(i,1) * dconjg(E_field(i,1))) 
-            sum_ext_m = sum_ext_m + mueps*aimag(rhs_ED_MD(Na+i,1)*dconjg(H_field(i,1)))
+            sum_ext_m = sum_ext_m + aimag(rhs_ED_MD(Na+i,1)*dconjg(H_field(i,1)))
             
         end do
           
@@ -438,8 +431,8 @@
             
         end do
         
-        Q_scat_e =         sum_scat_e * (4.*wv_1/(float(N)*rad_mean**2.))       !sigma_s^e + P      from MERCHIERS 27a
-        Q_scat_m = mueps * sum_scat_m * (4.*wv_1/(float(N)*rad_mean**2.))       !sigma_s^m + Q      from MERCHIERS 27b
+        Q_scat_e = sum_scat_e * (4.*wv_1/(float(N)*rad_mean**2.))       !sigma_s^e + P      from MERCHIERS 27a
+        Q_scat_m = sum_scat_m * (4.*wv_1/(float(N)*rad_mean**2.))       !sigma_s^m + Q      from MERCHIERS 27b
         
         Q_scat_em = Q_scat_e + Q_scat_m !sigma_s^e + P + sigma_s^m + Q
 !_________________________________________________        

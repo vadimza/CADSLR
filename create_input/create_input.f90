@@ -37,7 +37,7 @@
     parameter (Nline = 30)               ! particles in line
     parameter (Npatch = 10)             ! number of patches
     parameter (chain='2D')          ! type of chain
-    parameter (radius = 65)             ! radius, nm
+    parameter (radius = 50)             ! radius, nm
     
     parameter (Ndel1 = 0)               ! delete particles
     parameter (Ndel2 = 0)
@@ -46,8 +46,8 @@
     parameter (sig_siz1 = 0)            ! size disorder
     parameter (sig_siz2 = 0)
     
-    parameter (distx1 = 540)            ! period X
-    parameter (distx2 = 540)
+    parameter (distx1 = 400)            ! period X
+    parameter (distx2 = 700)
     parameter (disty1 = 400)            ! period Y
     parameter (disty2 = 700)
     
@@ -58,7 +58,7 @@
 
     parameter (lambda1 = 400)           ! lambda, nm
     parameter (lambda2 = 700)
-    parameter (lambdan = 151)
+    parameter (lambdan = 301)
     
     parameter (theta_E1 = 90)
     parameter (theta_E2 = 90)
@@ -299,8 +299,9 @@
         
         close(unit=70)
         
-        if (mod(id,15) .eq. 0)  write(80,*) 'START /WAIT ','CADSLR.exe ', input_file
-        if (mod(id,15) .ne. 0)  write(80,*) 'START ','CADSLR.exe ', input_file
+!        if (mod(id,8) .eq. 0)  write(80,*) 'START /WAIT ','CADSLR.exe ', input_file
+!        if (mod(id,8) .ne. 0)  write(80,*) 'START ','CADSLR.exe ', input_file
+        write(80,*) './cadslr.out ', input_file
         
     enddo
     enddo
